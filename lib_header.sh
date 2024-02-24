@@ -11,15 +11,15 @@ fi
 
 DISTR_DIR="${TOP_DIR}/.."
 
-if [ ! -d "${DISTR_DIR}/data" ] || [ ! -d "${DISTR_DIR}/distr" ] || [ ! -d "${DISTR_DIR}/.flavour" ] ; then
+if [ ! -d "${DISTR_DIR}/data" ] || [ ! -d "${DISTR_DIR}/distr" ] || [ ! -f "${DISTR_DIR}/.flavour" ] ; then
 	fail "Doesn't look like distribution directory"
 fi
 
-flavour="$(cat ${DISTR_DIR}/.flavour)"
-db_port="$(cat ${DISTR_DIR}/.db_port)"
-core_port="$(cat ${DISTR_DIR}/.core_port)"
-pub_fqdn="$(cat ${DISTR_DIR}/.pub_fqdn)"
-pub_url="$(cat ${DISTR_DIR}/.pub_url)"
+flavour="$(cat ${DISTR_DIR}/.flavour 2> /dev/null)"
+db_port="$(cat ${DISTR_DIR}/.db_port 2> /dev/null)"
+core_port="$(cat ${DISTR_DIR}/.core_port 2> /dev/null)"
+pub_fqdn="$(cat ${DISTR_DIR}/.pub_fqdn 2> /dev/null)"
+pub_url="$(cat ${DISTR_DIR}/.pub_url 2> /dev/null)"
 
 if [ "$db_port" == "" ] ; then
 	db_port="27017"
