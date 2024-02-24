@@ -11,6 +11,7 @@ function get_cmd_line() {
 }
 
 cmd_line="$(get_cmd_line)"
+export BINARY="./${flavour}-core"
 
 if [ -f "${DISTR_DIR}/data/raw/.firstrun" ] ; then
 	pushd "${DISTR_DIR}/distr/core" > /dev/null
