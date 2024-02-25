@@ -51,7 +51,7 @@ touch wget_tmp
 chmod 600 wget_tmp
 echo "user=$user" > wget_tmp
 echo "password=$password" >> wget_tmp
-WGETRC=./wget_tmp wget "${target_release}" -o release.tar.xz || fail "Failed to download release"
+WGETRC=./wget_tmp wget "${target_release}" -O release.tar.xz || fail "Failed to download release"
 ${TOP_DIR}/service.sh stop || fail "Failed to stop service"
 tar xvf release.tar.xz
 rm release.tar.xz
