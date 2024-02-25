@@ -11,7 +11,7 @@ function stage_install_deps() {
     which apt-get && apt-get update
     which apt-get && apt-get install -y build-essential cargo curl docker.io git letsencrypt libssl-dev nginx pkg-config python3-certbot-nginx python3-pip
     if [ "$machine_type" == "droplet" ] ; then
-        which apt-get && apt-get remove unattended-upgrades
+        which apt-get && apt-get remove -y unattended-upgrades
         which apt-get && apt-get upgrade -y
     fi
     return 0
