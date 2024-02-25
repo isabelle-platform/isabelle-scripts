@@ -4,8 +4,29 @@ cd "${TOP_DIR}"
 
 . ./lib_header.sh
 
-read -p "Releases user: " user
-read -p "Releases password: " password
+user=""
+password=""
+
+while test -n "$1" ; do
+    case $1 in
+        --user)
+            user="$2"
+            shift 1
+            ;;
+        --password)
+            password="$2"
+            shift 1
+            ;;
+        *)
+            fail "Unknown argument: $1"
+            ;;
+    esac
+done
+
+if [ "${user}" == "" ] || [ "${password}" == "" ] ; then
+    read -p "Releases user: " user
+    read -p "Releases password: " password
+fi
 
 url_release_equestrian="https://releases.interpretica.io/isabelle-equestrian-release/main-latest/equestrian-main-latest.tar.xz"
 url_release_intranet="https://releases.interpretica.io/isabelle-intranet-release/main-latest/intranet-main-latest.tar.xz"
