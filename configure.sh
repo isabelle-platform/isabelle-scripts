@@ -38,6 +38,13 @@ while test -n "$1" ; do
             echo "$2" > "${DISTR_DIR}/.machine_type"
             shift 1
             ;;
+        --server-type)
+			echo "$2" > "${DISTR_DIR}/.server_type"
+            shift 1
+            ;;
+        *)
+			fail "Unknown command: $1"
+			;;
     esac
     shift 1
 done

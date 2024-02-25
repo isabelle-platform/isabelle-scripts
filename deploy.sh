@@ -80,18 +80,11 @@ function stage_set_up_database() {
 stage_install_deps "${machine_type}"
 stage_set_up_firewall
 
-has_apache=
-has_nginx=
-
-if [ -d /etc/apache2 ] ; then
+if [ "${server_type}" == "apache" ] ; then
 	stage_set_up_apache
-	has_apache="y"
-
 	certbot --agree-tos --email "${cert_owner}" -n --apache -d "$pub_fqdn"
 else
 	stage_set_up_nginx
-	has_nginx="y"
-
 	certbot --agree-tos --email "${cert_owner}" -n --nginx -d "$pub_fqdn"
 fi
 
