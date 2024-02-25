@@ -53,6 +53,7 @@ echo "user=$user" > wget_tmp
 echo "password=$password" >> wget_tmp
 WGETRC=./wget_tmp wget "${target_release}" -O release.tar.xz || fail "Failed to download release"
 ${TOP_DIR}/service.sh stop || fail "Failed to stop service"
+rm -rf distr/ui
 tar xvf release.tar.xz
 rm release.tar.xz
 rm wget_tmp
