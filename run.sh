@@ -11,6 +11,14 @@ function get_cmd_line() {
                   --data-path "../../data/raw"
 }
 
+if [ ! -f "${DISTR_DIR}/distr/core/isabelle-gc/.installed" ] ; then
+	pushd "${DISTR_DIR}/distr/core/isabelle-gc" > /dev/null
+	./install.sh
+	popd > /dev/null
+
+	touch "${DISTR_DIR}/distr/core/isabelle-gc/.installed"
+fi
+
 cmd_line="$(get_cmd_line)"
 export BINARY="./${flavour}-core"
 
