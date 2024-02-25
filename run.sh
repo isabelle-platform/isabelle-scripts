@@ -14,7 +14,7 @@ function get_cmd_line() {
 cmd_line="$(get_cmd_line)"
 export BINARY="./${flavour}-core"
 
-if [ -f "${DISTR_DIR}/data/raw/.firstrun" ] ; then
+if [ ! -f "${DISTR_DIR}/data/raw/.initialized" ] ; then
 	pushd "${DISTR_DIR}/distr/core" > /dev/null
 	FIRST_RUN=y ${cmd_line}
 	status="$?"
@@ -24,7 +24,7 @@ if [ -f "${DISTR_DIR}/data/raw/.firstrun" ] ; then
 		exit $status
 	fi
 
-	rm "${DISTR_DIR}/data/raw/.firstrun"
+	touch "${DISTR_DIR}/data/raw/.initialized"
 fi
 
 pushd "${DISTR_DIR}/distr/core" > /dev/null
