@@ -20,6 +20,9 @@ db_port="$(cat ${DISTR_DIR}/.db_port 2> /dev/null)"
 core_port="$(cat ${DISTR_DIR}/.core_port 2> /dev/null)"
 pub_fqdn="$(cat ${DISTR_DIR}/.pub_fqdn 2> /dev/null)"
 pub_url="$(cat ${DISTR_DIR}/.pub_url 2> /dev/null)"
+cert_owner="$(cat ${DISTR_DIR}/.cert_owner 2> /dev/null)"
+srv_port="$(cat ${DISTR_DIR}/.srv_port 2> /dev/null)"
+machine_type="$(cact ${DISTR_DIR}/.machine_type 2> /dev/null)"
 
 if [ "$db_port" == "" ] ; then
 	db_port="27017"
@@ -35,4 +38,12 @@ fi
 
 if [ "$pub_url" == "" ] ; then
 	pub_url="http://localhost:${core_port}"
+fi
+
+if [ "$srv_port" == "" ] ; then
+	srv_port="80"
+fi
+
+if [ "${machine_type}" == "" ] ; then
+	machine_type=""
 fi
