@@ -34,7 +34,7 @@ function stage_set_up_nginx() {
 		sed "s/<srv_port>/${srv_port}/g" | \
 		sed "s/<core_port>/${core_port}/g" > /etc/nginx/sites-available/isabelle-${flavour}.conf
     pushd /etc/nginx/sites-enabled
-    ln -s ../sites-available/isabelle.conf
+    ln -s ../sites-available/isabelle-${flavour}.conf
     popd
 
     service nginx restart
@@ -43,13 +43,13 @@ function stage_set_up_nginx() {
 function stage_set_up_apache() {
 	local distr_ui_dir="$(echo ${DISTR_DIR}/distr/ui | sed 's/\//\\\//g')"
 
-	cat server/apache2.conf | \
+	cat server/apache.conf | \
 		sed "s/<pub_fqdn>/${pub_fqdn}/g" | \
 		sed "s/<root_folder>/${distr_ui_dir}/g" | \
 		sed "s/<srv_port>/${srv_port}/g" | \
 		sed "s/<core_port>/${core_port}/g" > /etc/apache2/sites-available/isabelle-${flavour}.conf
     pushd /etc/apache2/sites-enabled
-    ln -s ../sites-available/isabelle.conf
+    ln -s ../sites-available/isabelle-${flavour}.conf
     popd
 
     service apache2 restart

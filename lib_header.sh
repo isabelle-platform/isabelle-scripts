@@ -30,7 +30,7 @@ if [ "$db_port" == "" ] ; then
 fi
 
 if [ "$core_port" == "" ] ; then
-	core_port="8081"
+	core_port="8090"
 fi
 
 if [ "$pub_fqdn" == "" ] ; then
