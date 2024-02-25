@@ -24,6 +24,8 @@ esac
 
 pushd ${DISTR_DIR} > /dev/null
 
+rm distr/core/isabelle-gc/.installed > /dev/null 2> /dev/null
+
 touch wget_tmp
 chmod 600 wget_tmp
 echo "user=$user" > wget_tmp
