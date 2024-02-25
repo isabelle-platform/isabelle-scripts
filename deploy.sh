@@ -88,4 +88,5 @@ else
 	certbot --agree-tos --email "${cert_owner}" -n --nginx -d "$pub_fqdn"
 fi
 
+stage_set_up_database
 stage_set_up_service
