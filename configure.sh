@@ -42,6 +42,10 @@ while test -n "$1" ; do
 			echo "$2" > "${DISTR_DIR}/.server_type"
             shift 1
             ;;
+        --no-cert)
+			echo "$2" > "${DISTR_DIR}/.no_cert"
+            shift 1
+            ;;
         *)
 			fail "Unknown command: $1"
 			;;

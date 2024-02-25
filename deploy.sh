@@ -82,10 +82,14 @@ stage_set_up_firewall
 
 if [ "${server_type}" == "apache" ] ; then
 	stage_set_up_apache
-	certbot --agree-tos --email "${cert_owner}" -n --apache -d "$pub_fqdn"
+	if [ "$no_cert" == "" ] ; then
+		certbot --agree-tos --email "${cert_owner}" -n --apache -d "$pub_fqdn"
+	fi
 else
 	stage_set_up_nginx
-	certbot --agree-tos --email "${cert_owner}" -n --nginx -d "$pub_fqdn"
+	if [ "$no_cert" == "" ] ; then
+		certbot --agree-tos --email "${cert_owner}" -n --nginx -d "$pub_fqdn"
+	fi
 fi
 
 stage_set_up_database
