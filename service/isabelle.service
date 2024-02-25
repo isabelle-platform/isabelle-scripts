@@ -1,0 +1,10 @@
+[Unit]
+Description=Isabelle service
+After=network.target network-online.target
+
+[Service]
+ExecStart=<run_script>
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
