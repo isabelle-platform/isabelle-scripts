@@ -25,6 +25,7 @@ srv_port="$(cat ${DISTR_DIR}/.srv_port 2> /dev/null)"
 machine_type="$(cat ${DISTR_DIR}/.machine_type 2> /dev/null)"
 server_type="$(cat ${DISTR_DIR}/.server_type 2> /dev/null)"
 no_cert="$(cat ${DISTR_DIR}/.no_cert 2> /dev/null)"
+no_fw="$(cat ${DISTR_DIR}/.no_fw 2> /dev/null)"
 
 if [ "$db_port" == "" ] ; then
 	db_port="27017"
@@ -55,3 +56,4 @@ if [ "${server_type}" == "" ] ; then
 fi
 
 # no_cert
+# no_fw

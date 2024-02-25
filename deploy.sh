@@ -18,11 +18,14 @@ function stage_install_deps() {
 }
 
 function stage_set_up_firewall() {
-    echo "Set up UFW"
-    ufw allow ssh
-    ufw allow 443/tcp
-    ufw allow 80/tcp
-    ufw --force enable
+    if [ "${no_fw}" == "" ] ; then
+    	echo "Set up UFW"
+	    ufw allow ssh
+	    ufw allow 443/tcp
+	    ufw allow 80/tcp
+	    ufw --force enable
+	fi
+	return 0
 }
 
 function stage_set_up_nginx() {
@@ -38,6 +41,7 @@ function stage_set_up_nginx() {
     popd
 
     service nginx restart
+    return 0
 }
 
 function stage_set_up_apache() {
@@ -53,6 +57,14 @@ function stage_set_up_apache() {
     popd
 
     service apache2 restart
+    return 0
+}
+
+function stage_set_up_certs() {
+	if [ "$no_cert" == "" ] ; then
+		certbot --agree-tos --email "${cert_owner}" -n --${server_type} -d "$pub_fqdn"
+	fi
+	return 0
 }
 
 function stage_set_up_service() {
@@ -82,15 +94,11 @@ stage_set_up_firewall
 
 if [ "${server_type}" == "apache" ] ; then
 	stage_set_up_apache
-	if [ "$no_cert" == "" ] ; then
-		certbot --agree-tos --email "${cert_owner}" -n --apache -d "$pub_fqdn"
-	fi
 else
 	stage_set_up_nginx
-	if [ "$no_cert" == "" ] ; then
-		certbot --agree-tos --email "${cert_owner}" -n --nginx -d "$pub_fqdn"
-	fi
 fi
+
+stage_set_up_certs
 
 stage_set_up_database
 stage_set_up_service

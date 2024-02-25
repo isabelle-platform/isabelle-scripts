@@ -46,6 +46,10 @@ while test -n "$1" ; do
 			echo "$2" > "${DISTR_DIR}/.no_cert"
             shift 1
             ;;
+        --no-fw)
+			echo "$2" > "${DISTR_DIR}/.no_fw"
+            shift 1
+            ;;
         *)
 			fail "Unknown command: $1"
 			;;
