@@ -43,7 +43,7 @@ case "$flavour" in
         exit 1
 esac
 
-pushd ${DISTR_DIR} > /dev/null
+pushd "${DISTR_DIR}" > /dev/null
 
 rm distr/core/isabelle-gc/.installed > /dev/null 2> /dev/null
 
@@ -58,5 +58,7 @@ rm release.tar.xz
 rm wget_tmp
 
 popd > /dev/null
+
+chown -R www-data:www-data "${DISTR_DIR}"
 
 ${TOP_DIR}/service.sh start || fail "Failed to start service"
