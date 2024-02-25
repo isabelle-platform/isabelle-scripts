@@ -68,28 +68,13 @@ function stage_set_up_service() {
     systemctl daemon-reload
     systemctl restart isabelle-${flavour}
     systemctl enable isabelle-${flavour}
+    return 0
 }
 
-machine_type=""
-while test -n "$1" ; do
-    case $1 in
-        --flavour)
-            flavour="$2"
-            shift 1
-            ;;
-        --machine-type)
-            machine_type="$2"
-            shift 1
-            ;;
-        --cert-owner)
-            cert_owner="$2"
-            shift 1
-            ;;
-        *)
-			fail "Unknown argument: $1"
-			;;
-	esac
-done
+function stage_set_up_database() {
+	${TOP_DIR}/database.sh start
+	return 0
+}
 
 # Preparation
 stage_install_deps "${machine_type}"
