@@ -1,10 +1,14 @@
 # isabelle-scripts
 Isabelle scripts
 
-## Deploy Equestrian
+## Configure for Equestrian
 
-	./scripts/configure.sh --pub-fqdn isabelle-staging.interpretica.io --pub-url https://isabelle-staging.interpretica.io --cert-owner "info+isabelledemo@interpretica.io" --machine-type droplet
+	./scripts/configure.sh --pub-fqdn isabelle-staging.test.com --pub-url https://isabelle-staging.test.com --cert-owner "info+isabelledemo@test.com" --machine-type droplet
 
-## Deploy Intranet
+## Configure for Intranet
 
-	./scripts/configure.sh --pub-fqdn intranet.interpretica.io --pub-url https://intranet.interpretica.io --cert-owner "info+intranet@interpretica.io"
+	./scripts/configure.sh --pub-fqdn intranet.test.com --pub-url https://intranet.test.com --cert-owner "info+intranet@test.com"
+
+## Deploy
+
+	./scripts/deploy.sh

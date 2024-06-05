@@ -1,4 +1,7 @@
 #!/bin/bash
+# Isabelle project
+# This script initializes Isabelle setup and puts configuration
+# to files that are easily accessible by other scripts
 TOP_DIR="$(cd "$(dirname "$(which "$0")")" ; pwd -P)"
 cd "${TOP_DIR}"
 

@@ -1,4 +1,7 @@
 #!/bin/bash
+# Isabelle project
+# This script deploys Isabelle to the system.
+
 TOP_DIR="$(cd "$(dirname "$(which "$0")")" ; pwd -P)"
 cd "${TOP_DIR}"
 

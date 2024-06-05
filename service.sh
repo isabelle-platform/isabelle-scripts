@@ -1,4 +1,6 @@
 #!/bin/bash
+# Isabelle project
+# This script controls the service associated with the backend.
 TOP_DIR="$(cd "$(dirname "$(which "$0")")" ; pwd -P)"
 cd "${TOP_DIR}"
 

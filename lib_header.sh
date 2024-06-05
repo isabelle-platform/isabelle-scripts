@@ -1,4 +1,6 @@
 #!/bin/bash
+# Isabelle project
+# This is a common library for different scripts.
 
 function fail() {
 	echo $@ >&2

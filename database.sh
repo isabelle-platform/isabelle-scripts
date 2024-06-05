@@ -1,4 +1,6 @@
 #!/bin/bash
+# Isabelle project
+# This script runs database system to carry user data.
 TOP_DIR="$(cd "$(dirname "$(which "$0")")" ; pwd -P)"
 cd "${TOP_DIR}"
 

@@ -1,4 +1,8 @@
 #!/bin/bash
+# Isabelle project
+# This script runs Isabelle. This script is supposed to be invoked
+# from systemd or other service handler.
+
 TOP_DIR="$(cd "$(dirname "$(which "$0")")" ; pwd -P)"
 cd "${TOP_DIR}"
 
