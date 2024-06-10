@@ -32,11 +32,15 @@ if [ "${user}" == "" ] || [ "${password}" == "" ] ; then
 fi
 
 url_release_equestrian="https://releases.interpretica.io/isabelle-equestrian-release/main-latest/equestrian-main-latest.tar.xz"
+url_release_sample="https://releases.interpretica.io/isabelle-sample-release/main-latest/sample-main-latest.tar.xz"
 url_release_intranet="https://releases.interpretica.io/isabelle-intranet-release/main-latest/intranet-main-latest.tar.xz"
 
 case "$flavour" in
     equestrian)
         target_release="$url_release_equestrian"
+        ;;
+    sample)
+        target_release="$url_release_sample"
         ;;
     intranet)
         target_release="$url_release_intranet"
