@@ -13,6 +13,10 @@ while test -n "$1" ; do
             echo "$2" > "${DISTR_DIR}/.flavour"
             shift 1
             ;;
+        --db)
+            echo "$2" > "${DISTR_DIR}/.db"
+            shift 1
+            ;;
         --db-port)
             echo "$2" > "${DISTR_DIR}/.db_port"
             shift 1

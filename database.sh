@@ -9,6 +9,11 @@ cd "${TOP_DIR}"
 action="$1"
 container_name="isabelle-${flavour}-db"
 
+if [ "$db" != "mongo" ] ; then
+    echo "Database is managed externally"
+    exit 0
+fi
+
 case "$action" in
     start)
         docker run --restart=always \
