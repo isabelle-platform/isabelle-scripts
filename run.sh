@@ -12,7 +12,8 @@ function get_cmd_line() {
 	echo ./run.sh --port "${core_port}" \
                   --pub-url "${pub_url}" \
                   --pub-fqdn "${pub_fqdn}" \
-                  --data-path "../../data/raw"
+                  --data-path "../../data/raw" \
+                  --plugin-dir "."
 }
 
 if [ ! -f "${DISTR_DIR}/distr/core/isabelle-gc/.installed" ] ; then
