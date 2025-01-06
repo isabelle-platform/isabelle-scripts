@@ -57,6 +57,10 @@ while test -n "$1" ; do
 			echo "$2" > "${DISTR_DIR}/.no_fw"
             shift 1
             ;;
+        --cookie-http-insecure)
+            echo "$2" > "${DISTR_DIR}/.cookie_http_insecure"
+            shift 1
+            ;;
         *)
 			fail "Unknown command: $1"
 			;;

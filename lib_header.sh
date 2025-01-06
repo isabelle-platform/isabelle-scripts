@@ -29,6 +29,7 @@ server_type="$(cat ${DISTR_DIR}/.server_type 2> /dev/null)"
 no_cert="$(cat ${DISTR_DIR}/.no_cert 2> /dev/null)"
 no_fw="$(cat ${DISTR_DIR}/.no_fw 2> /dev/null)"
 db="$(cat ${DISTR_DIR}/.db 2> /dev/null)"
+cookie_http_insecure="$(cat ${DISTR_DIR}/.cookie_http_insecure 2> /dev/null)"
 
 if [ "$db_port" == "" ] ; then
 	db_port="27017"
@@ -64,3 +65,5 @@ fi
 if [ "${db}" == "" ] ; then
 	db="mongo"
 fi
+
+# cookie_http_insecure
