@@ -35,6 +35,7 @@ url_release_equestrian="https://releases.interpretica.io/isabelle-equestrian-rel
 url_release_sample="https://releases.interpretica.io/isabelle-sample-release/main-latest/sample-main-latest.tar.xz"
 url_release_intranet="https://releases.interpretica.io/isabelle-intranet-release/main-latest/intranet-main-latest.tar.xz"
 url_release_cloudcpe="https://releases.interpretica.io/isabelle-cloudcpe-release/main-latest/cloudcpe-main-latest.tar.xz"
+url_release_didactist="https://releases.interpretica.io/isabelle-didactist-release/main-latest/didactist-main-latest.tar.xz"
 
 case "$flavour" in
     equestrian)
@@ -48,6 +49,9 @@ case "$flavour" in
         ;;
     cloudcpe)
         target_release="$url_release_cloudcpe"
+        ;;
+    didactist)
+        target_release="$url_release_didactist"
         ;;
     *)
         echo "Unknown flavour: $flavour" >&2
