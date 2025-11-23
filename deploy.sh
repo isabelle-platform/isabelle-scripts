@@ -105,3 +105,9 @@ stage_set_up_certs
 
 stage_set_up_database
 stage_set_up_service
+
+if [ -d extras/deploy ] ; then
+	for file in $(ls extras/deploy/*) ; do
+		TOP_DIR="${TOP_DIR}" "$file"
+	done
+fi

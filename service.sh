@@ -11,4 +11,10 @@ service_name="isabelle-${flavour}"
 
 systemctl "${action}" "${service_name}"
 
+if [ -d extras/service ] ; then
+	for file in $(ls extras/service/*) ; do
+		TOP_DIR="${TOP_DIR}" "$file" "${action}"
+	done
+fi
+
 exit "$?"
