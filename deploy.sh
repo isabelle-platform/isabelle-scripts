@@ -43,6 +43,8 @@ function stage_set_up_nginx() {
     ln -s ../sites-available/isabelle-${flavour}.conf
     popd
 
+    mkdir -p /etc/nginx/isabelle
+
     service nginx restart
     return 0
 }
