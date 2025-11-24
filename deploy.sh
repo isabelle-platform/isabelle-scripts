@@ -112,7 +112,7 @@ stage_set_up_database
 stage_set_up_service
 
 if [ -d extras/deploy ] ; then
-	for file in $(ls extras/deploy/*) ; do
+	for file in $(ls extras/deploy/*.sh) ; do
 		TOP_DIR="${TOP_DIR}" "$file"
 	done
 fi
