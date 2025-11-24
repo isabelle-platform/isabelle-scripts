@@ -44,8 +44,8 @@ function stage_set_up_nginx() {
     popd
 
     mkdir -p /etc/nginx/isabelle
-    if [ -d server/nginx ] ; then
-        cp -r server/nginx/* /etc/nginx/isabelle/
+    if [ -d extras/nginx ] ; then
+        cp -r extras/nginx/* /etc/nginx/isabelle/
     fi
 
     service nginx restart
