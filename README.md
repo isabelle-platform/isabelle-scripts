@@ -1,18 +1,41 @@
-# isabelle-scripts
+# `isabelle-scripts`
+
 Isabelle scripts
 
-## Configure for Equestrian
+## Configure
 
-	./scripts/configure.sh --pub-fqdn isabelle-staging.test.com --pub-url https://isabelle-staging.test.com --cert-owner "info+isabelledemo@test.com" --machine-type droplet
+### for Equestrian
 
-## Configure for Intranet
+```bash
+./scripts/configure.sh \
+	--pub-fqdn isabelle-staging.test.com \
+	--pub-url https://isabelle-staging.test.com \
+	--cert-owner "info+isabelledemo@test.com" \
+	--machine-type droplet
+```
 
-	./scripts/configure.sh --pub-fqdn intranet.test.com --pub-url https://intranet.test.com --cert-owner "info+intranet@test.com"
+### for Intranet
 
-## Configure for other
+```bash
+./scripts/configure.sh \
+	--pub-fqdn intranet.test.com \
+	--pub-url https://intranet.test.com \
+	--cert-owner "info+intranet@test.com"
+```
 
-	./scripts/configure.sh --pub-fqdn localhost.com:8480 --pub-url http://localhost.com:8480 --db "none" --no-cert 1 --no-fw 1
+### for Localhost
+
+```bash
+./scripts/configure.sh \
+	--pub-fqdn localhost.com:8480 \
+	--pub-url http://localhost.com:8480 \
+	--db "none" \
+	--no-cert 1 \
+	--no-fw 1
+```
 
 ## Deploy
 
-	./scripts/deploy.sh
+```bash
+./scripts/deploy.sh
+```
