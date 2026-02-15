@@ -21,7 +21,7 @@ case "$action" in
                    --name "${container_name}" \
                    -v "${DISTR_DIR}/data/database:/data/db" \
                    -d \
-                   mongo
+                   mongo:7.0
         exit $?
         ;;
     stop)
