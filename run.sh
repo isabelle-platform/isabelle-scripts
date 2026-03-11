@@ -13,6 +13,7 @@ function get_cmd_line() {
 		--pub-url "${pub_url}" \
 		--pub-fqdn "${pub_fqdn}" \
 		--db-url "mongodb://127.0.0.1:${db_port:-27017}" \
+		--database "${db}" \
 		--data-path "../../data/raw" \
 		${cookie_http_insecure:+--cookie-http-insecure} \
 		--plugin-dir "."
