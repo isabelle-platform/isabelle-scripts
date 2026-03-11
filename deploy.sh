@@ -80,7 +80,7 @@ function stage_set_up_service() {
 
 	systemctl disable isabelle-${flavour}
 
-	run_script="$(echo ${DISTR_DIR}/scripts/run.sh | sed 's/\//\\\//g')"
+	run_script="$(echo $(realpath ${DISTR_DIR}/scripts/run.sh) | sed 's/\//\\\//g')"
 
 	cat service/isabelle.service \
     	| sed "s/<run_script>/${run_script}/g" > /lib/systemd/system/isabelle-${flavour}.service
