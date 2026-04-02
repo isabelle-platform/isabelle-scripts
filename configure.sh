@@ -61,6 +61,10 @@ while test -n "$1" ; do
             echo "$2" > "${DISTR_DIR}/.cookie_http_insecure"
             shift 1
             ;;
+        --no-serve-root)
+			echo "$2" > "${DISTR_DIR}/.no_serve_root"
+			shift 1
+            ;;
         *)
 			fail "Unknown command: $1"
 			;;

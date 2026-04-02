@@ -30,6 +30,7 @@ no_cert="$(cat ${DISTR_DIR}/.no_cert 2> /dev/null)"
 no_fw="$(cat ${DISTR_DIR}/.no_fw 2> /dev/null)"
 db="$(cat ${DISTR_DIR}/.db 2> /dev/null)"
 cookie_http_insecure="$(cat ${DISTR_DIR}/.cookie_http_insecure 2> /dev/null)"
+no_serve_root="$(cat ${DISTR_DIR}/.no_serve_root 2> /dev/null)"
 
 if [ "$db_port" == "" ] ; then
 	db_port="27017"
@@ -67,3 +68,4 @@ if [ "${db}" == "" ] ; then
 fi
 
 # cookie_http_insecure
+# no_serve_root

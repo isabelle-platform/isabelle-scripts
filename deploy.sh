@@ -34,11 +34,20 @@ function stage_set_up_firewall() {
 function stage_set_up_nginx() {
 	local distr_ui_dir="$(echo ${DISTR_DIR}/distr/ui | sed 's/\//\\\//g')"
 
-	cat server/nginx.conf | \
+	local nginx_conf
+	nginx_conf="$(cat server/nginx.conf | \
 		sed "s/<pub_fqdn>/${pub_fqdn}/g" | \
 		sed "s/<root_folder>/${distr_ui_dir}/g" | \
 		sed "s/<srv_port>/${srv_port}/g" | \
-		sed "s/<core_port>/${core_port}/g" > /etc/nginx/sites-available/isabelle-${flavour}.conf
+		sed "s/<core_port>/${core_port}/g")"
+
+	if [ "${no_serve_root}" != "" ] ; then
+		nginx_conf="$(echo "${nginx_conf}" | \
+			sed '/^\s*index index\.html;/d' | \
+			sed 's|try_files \$uri \$uri/ /index\.html;|try_files \$uri \$uri/ =404;|')"
+	fi
+
+	echo "${nginx_conf}" > /etc/nginx/sites-available/isabelle-${flavour}.conf
     pushd /etc/nginx/sites-enabled
     ln -s ../sites-available/isabelle-${flavour}.conf
     popd
