@@ -10,12 +10,13 @@ cd "${TOP_DIR}"
 
 function get_cmd_line() {
 	echo ./run.sh --port "${core_port}" \
-                  --pub-url "${pub_url}" \
-                  --pub-fqdn "${pub_fqdn}" \
-                  --db-url "mongodb://127.0.0.1:${db_port:-27017}" \
-                  --data-path "../../data/raw" \
-                  ${cookie_http_insecure:+--cookie-http-insecure} \
-                  --plugin-dir "."
+		--pub-url "${pub_url}" \
+		--pub-fqdn "${pub_fqdn}" \
+		--db-url "mongodb://127.0.0.1:${db_port:-27017}" \
+		--database "${db}" \
+		--data-path "../../data/raw" \
+		${cookie_http_insecure:+--cookie-http-insecure} \
+		--plugin-dir "."
 }
 
 if [ ! -f "${DISTR_DIR}/distr/core/isabelle-gc/.installed" ] ; then
