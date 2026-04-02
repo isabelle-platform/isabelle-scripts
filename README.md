@@ -12,6 +12,10 @@ Isabelle scripts
 ## Configure for other
 
 	./scripts/configure.sh --pub-fqdn localhost.com:8480 --pub-url http://localhost.com:8480 --db "none" --no-cert 1 --no-fw 1
+	
+## Configure for Midair
+
+	./scripts/configure.sh --pub-fqdn midair.test.com --pub-url http://midair.test.com --cert-own "info+midair@test.com"
 
 ## Deploy
 
