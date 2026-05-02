@@ -9,7 +9,7 @@ cd "${TOP_DIR}"
 action="$1"
 container_name="isabelle-${flavour}-db"
 
-if [ "$db" != "mongo" ] ; then
+if [ "$db" != "mongo" ] && [ "$db" != "isabelle" ]; then
     echo "Database is managed externally"
     exit 0
 fi

@@ -9,6 +9,7 @@ cd "${TOP_DIR}"
 
 user=""
 password=""
+coreenv=""
 
 while test -n "$1" ; do
     case $1 in
@@ -20,11 +21,27 @@ while test -n "$1" ; do
             password="$2"
             shift 1
             ;;
+        --coreenv)
+            coreenv="y"
+            ;;
         *)
             fail "Unknown argument: $1"
             ;;
     esac
+    shift 1
 done
+
+if [ "${coreenv}" == "y" ]; then
+    if [ "${user}" == "" ] && [ -f "${DISTR_DIR}/.releases_user" ]; then
+        user="$(cat "${DISTR_DIR}/.releases_user")"
+    fi
+    if [ "${password}" == "" ] && [ -f "${DISTR_DIR}/.releases_password" ]; then
+        password="$(cat "${DISTR_DIR}/.releases_password")"
+    fi
+    if [ "${user}" == "" ] || [ "${password}" == "" ]; then
+        fail "Releases credentials not found in core environment"
+    fi
+fi
 
 if [ "${user}" == "" ] || [ "${password}" == "" ] ; then
     read -p "Releases user: " user

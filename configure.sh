@@ -64,6 +64,15 @@ while test -n "$1" ; do
         --no-serve-root)
 			echo "$2" > "${DISTR_DIR}/.no_serve_root"
 			shift 1
+        --releases-user)
+            echo "$2" > "${DISTR_DIR}/.releases_user"
+            chmod 600 "${DISTR_DIR}/.releases_user"
+            shift 1
+            ;;
+        --releases-password)
+            echo "$2" > "${DISTR_DIR}/.releases_password"
+            chmod 600 "${DISTR_DIR}/.releases_password"
+            shift 1
             ;;
         *)
 			fail "Unknown command: $1"

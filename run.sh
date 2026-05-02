@@ -16,6 +16,7 @@ function get_cmd_line() {
 		--database "${db}" \
 		--data-path "../../data/raw" \
 		${cookie_http_insecure:+--cookie-http-insecure} \
+		--update-script "${TOP_DIR}/update-coreenv.sh" \
 		--plugin-dir "."
 }
 
