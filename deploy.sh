@@ -105,6 +105,37 @@ function stage_set_up_database() {
 	return 0
 }
 
+function stage_set_up_extra_units() {
+	[ -d extras/systemd ] || return 0
+
+	local distr_dir_esc="$(echo ${DISTR_DIR} | sed 's/\//\\\//g')"
+	local top_dir_esc="$(echo ${TOP_DIR} | sed 's/\//\\\//g')"
+	local pub_fqdn_esc="$(echo ${pub_fqdn} | sed 's/\//\\\//g')"
+	local flavour_esc="$(echo ${flavour} | sed 's/\//\\\//g')"
+
+	local unit_src
+	local unit_name
+	for unit_src in extras/systemd/*.service ; do
+		[ -f "${unit_src}" ] || continue
+		unit_name="$(basename "${unit_src}")"
+		sed -e "s/<distr_dir>/${distr_dir_esc}/g" \
+		    -e "s/<top_dir>/${top_dir_esc}/g" \
+		    -e "s/<pub_fqdn>/${pub_fqdn_esc}/g" \
+		    -e "s/<flavour>/${flavour_esc}/g" \
+		    "${unit_src}" > "/lib/systemd/system/${unit_name}"
+	done
+
+	systemctl daemon-reload
+
+	for unit_src in extras/systemd/*.service ; do
+		[ -f "${unit_src}" ] || continue
+		unit_name="$(basename "${unit_src}")"
+		systemctl enable "${unit_name}"
+		systemctl restart "${unit_name}"
+	done
+	return 0
+}
+
 # Preparation
 stage_install_deps "${machine_type}"
 stage_set_up_firewall
@@ -119,6 +150,7 @@ stage_set_up_certs
 
 stage_set_up_database
 stage_set_up_service
+stage_set_up_extra_units
 
 if [ -d extras/deploy ] ; then
 	for file in $(ls extras/deploy/*.sh) ; do
