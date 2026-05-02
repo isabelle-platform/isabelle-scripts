@@ -46,15 +46,15 @@ while test -n "$1" ; do
             shift 1
             ;;
         --server-type)
-			echo "$2" > "${DISTR_DIR}/.server_type"
+            echo "$2" > "${DISTR_DIR}/.server_type"
             shift 1
             ;;
         --no-cert)
-			echo "$2" > "${DISTR_DIR}/.no_cert"
+            echo "$2" > "${DISTR_DIR}/.no_cert"
             shift 1
             ;;
         --no-fw)
-			echo "$2" > "${DISTR_DIR}/.no_fw"
+            echo "$2" > "${DISTR_DIR}/.no_fw"
             shift 1
             ;;
         --cookie-http-insecure)
@@ -62,8 +62,9 @@ while test -n "$1" ; do
             shift 1
             ;;
         --no-serve-root)
-			echo "$2" > "${DISTR_DIR}/.no_serve_root"
-			shift 1
+            echo "$2" > "${DISTR_DIR}/.no_serve_root"
+            shift 1
+            ;;
         --releases-user)
             echo "$2" > "${DISTR_DIR}/.releases_user"
             chmod 600 "${DISTR_DIR}/.releases_user"
@@ -75,8 +76,8 @@ while test -n "$1" ; do
             shift 1
             ;;
         *)
-			fail "Unknown command: $1"
-			;;
+            fail "Unknown command: $1"
+            ;;
     esac
     shift 1
 done
