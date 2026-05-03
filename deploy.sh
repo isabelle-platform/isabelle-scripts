@@ -12,7 +12,7 @@ function stage_install_deps() {
 
     echo "Installing dependencies"
     which apt-get && apt-get update
-    which apt-get && apt-get install -y build-essential cargo curl docker.io git jq letsencrypt libssl-dev nginx pkg-config python3-certbot-nginx python3-pip
+    which apt-get && apt-get install -y build-essential cargo curl docker.io docker-buildx git jq letsencrypt libssl-dev nginx pkg-config python3-certbot-nginx python3-pip
     if [ "$machine_type" == "droplet" ] ; then
         which apt-get && apt-get remove -y unattended-upgrades
         which apt-get && apt-get upgrade -y
@@ -38,6 +38,26 @@ function stage_install_deps() {
 
     if command -v systemctl > /dev/null 2>&1 ; then
         systemctl enable --now docker || true
+    fi
+
+    # Enable BuildKit in dockerd by default — Dockerfiles using --mount
+    # (e.g. bublik-runner) require it.
+    if [ -d /etc/docker ] && ! grep -q '"buildkit": true' /etc/docker/daemon.json 2> /dev/null ; then
+        if [ ! -f /etc/docker/daemon.json ] ; then
+            echo '{"features": {"buildkit": true}}' > /etc/docker/daemon.json
+        else
+            python3 - <<'PY'
+import json, pathlib
+p = pathlib.Path('/etc/docker/daemon.json')
+try:
+    cfg = json.loads(p.read_text())
+except Exception:
+    cfg = {}
+cfg.setdefault('features', {})['buildkit'] = True
+p.write_text(json.dumps(cfg, indent=2))
+PY
+        fi
+        systemctl restart docker || true
     fi
 
     if command -v getent > /dev/null 2>&1 && getent group docker > /dev/null ; then
