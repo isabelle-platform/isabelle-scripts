@@ -98,4 +98,14 @@ popd > /dev/null
 
 chown -R www-data:www-data "${DISTR_DIR}"
 
+# Re-apply install-time extras hooks: the tarball just overwrote distr/ and
+# data/raw/, so any data the hooks injected (e.g. bublik_ui_url, SSH creds in
+# data/raw/settings.js) needs to be re-applied before the core starts and
+# snapshots its data again.
+if [ -d "${TOP_DIR}/extras/deploy" ] ; then
+	for file in $(ls "${TOP_DIR}/extras/deploy"/*.sh 2> /dev/null) ; do
+		TOP_DIR="${TOP_DIR}" "$file" || fail "Extras deploy hook failed: $file"
+	done
+fi
+
 ${TOP_DIR}/service.sh start || fail "Failed to start service"
