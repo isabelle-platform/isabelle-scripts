@@ -9,6 +9,11 @@ cd "${TOP_DIR}"
 . ./lib_header.sh
 
 function get_cmd_line() {
+	local update_script_arg=""
+	if grep -q -- '--update-script' "${DISTR_DIR}/distr/core/run.sh" 2> /dev/null ; then
+		update_script_arg="--update-script ${TOP_DIR}/update-coreenv.sh"
+	fi
+
 	echo ./run.sh --port "${core_port}" \
 		--pub-url "${pub_url}" \
 		--pub-fqdn "${pub_fqdn}" \
@@ -16,7 +21,7 @@ function get_cmd_line() {
 		--database "${db}" \
 		--data-path "../../data/raw" \
 		${cookie_http_insecure:+--cookie-http-insecure} \
-		--update-script "${TOP_DIR}/update-coreenv.sh" \
+		${update_script_arg} \
 		--plugin-dir "."
 }
 

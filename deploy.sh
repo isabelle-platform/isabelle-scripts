@@ -12,11 +12,40 @@ function stage_install_deps() {
 
     echo "Installing dependencies"
     which apt-get && apt-get update
-    which apt-get && apt-get install -y build-essential cargo curl docker.io git letsencrypt libssl-dev nginx pkg-config python3-certbot-nginx python3-pip
+    which apt-get && apt-get install -y build-essential cargo curl docker.io git jq letsencrypt libssl-dev nginx pkg-config python3-certbot-nginx python3-pip
     if [ "$machine_type" == "droplet" ] ; then
         which apt-get && apt-get remove -y unattended-upgrades
         which apt-get && apt-get upgrade -y
     fi
+
+    # docker-compose v2 plugin: not in default Ubuntu repos when using docker.io.
+    # Try apt first (works when docker-ce repo is configured), fall back to the
+    # official binary release.
+    if ! docker compose version > /dev/null 2>&1 ; then
+        if ! apt-get install -y docker-compose-plugin > /dev/null 2>&1 ; then
+            local arch
+            arch="$(uname -m)"
+            case "$arch" in
+                x86_64) arch="x86_64" ;;
+                aarch64|arm64) arch="aarch64" ;;
+            esac
+            mkdir -p /usr/local/lib/docker/cli-plugins
+            curl -fsSL "https://github.com/docker/compose/releases/latest/download/docker-compose-linux-${arch}" \
+                -o /usr/local/lib/docker/cli-plugins/docker-compose
+            chmod +x /usr/local/lib/docker/cli-plugins/docker-compose
+        fi
+    fi
+
+    if command -v systemctl > /dev/null 2>&1 ; then
+        systemctl enable --now docker || true
+    fi
+
+    if command -v getent > /dev/null 2>&1 && getent group docker > /dev/null ; then
+        if ! id -nG root | tr ' ' '\n' | grep -qx docker ; then
+            usermod -aG docker root || true
+        fi
+    fi
+
     return 0
 }
 
@@ -108,8 +137,13 @@ function stage_set_up_database() {
 function stage_set_up_extra_units() {
 	[ -d extras/systemd ] || return 0
 
-	local distr_dir_esc="$(echo ${DISTR_DIR} | sed 's/\//\\\//g')"
-	local top_dir_esc="$(echo ${TOP_DIR} | sed 's/\//\\\//g')"
+	local distr_dir_norm
+	local top_dir_norm
+	distr_dir_norm="$(cd "${DISTR_DIR}" && pwd -P)"
+	top_dir_norm="$(cd "${TOP_DIR}" && pwd -P)"
+
+	local distr_dir_esc="$(echo ${distr_dir_norm} | sed 's/\//\\\//g')"
+	local top_dir_esc="$(echo ${top_dir_norm} | sed 's/\//\\\//g')"
 	local pub_fqdn_esc="$(echo ${pub_fqdn} | sed 's/\//\\\//g')"
 	local flavour_esc="$(echo ${flavour} | sed 's/\//\\\//g')"
 
