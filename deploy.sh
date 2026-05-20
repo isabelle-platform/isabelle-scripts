@@ -12,7 +12,7 @@ function stage_install_deps() {
 
     echo "Installing dependencies"
     which apt-get && apt-get update
-    which apt-get && apt-get install -y build-essential cargo curl docker.io docker-buildx git jq letsencrypt libssl-dev nginx pkg-config python3-certbot-nginx python3-pip
+    which apt-get && apt-get install -y build-essential cargo curl docker.io docker-buildx git jq letsencrypt libssl-dev nginx pkg-config python3-certbot-nginx python3-pip sshpass
     if [ "$machine_type" == "droplet" ] ; then
         which apt-get && apt-get remove -y unattended-upgrades
         which apt-get && apt-get upgrade -y

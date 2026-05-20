@@ -21,8 +21,7 @@ function get_cmd_line() {
 		--database "${db}" \
 		--data-path "../../data/raw" \
 		${cookie_http_insecure:+--cookie-http-insecure} \
-		${update_script_arg} \
-		--plugin-dir "."
+		${update_script_arg}
 }
 
 if [ ! -f "${DISTR_DIR}/distr/core/isabelle-gc/.installed" ] ; then
@@ -36,19 +35,8 @@ fi
 cmd_line="$(get_cmd_line)"
 export BINARY="./${flavour}-core"
 
-if [ ! -f "${DISTR_DIR}/data/raw/.initialized" ] ; then
-	pushd "${DISTR_DIR}/distr/core" > /dev/null
-	FIRST_RUN=y ${cmd_line}
-	status="$?"
-	popd > /dev/null
-	if [ "$status" != "0" ] ; then
-		fail "Failed to run Core for the first run: $status"
-		exit $status
-	fi
-
-	touch "${DISTR_DIR}/data/raw/.initialized"
-fi
-
+# Core seeds an empty database itself on startup (first-run autodetect),
+# so no separate priming pass is needed.
 pushd "${DISTR_DIR}/distr/core" > /dev/null
 ${cmd_line}
 popd > /dev/null
