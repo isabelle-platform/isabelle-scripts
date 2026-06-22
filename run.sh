@@ -43,6 +43,21 @@ if [ -z "${PROTOSTAR_BIN}" ] && [ -x "${DISTR_DIR}/distr/core/protostar" ] ; the
 	export PROTOSTAR_BIN="$(cd "${DISTR_DIR}/distr/core" && pwd -P)/protostar"
 fi
 
+# protostar config + live fleet state ship under distr/core/protostar-cfgs.
+# protostar.yaml is versioned (refreshed on update); state.json is created
+# there at runtime and persists across updates (it's never in the tarball).
+# Absolute paths so they resolve from the core's cwd. The DIGITALOCEAN_TOKEN
+# (and SSH provisioning keys) are NOT shipped — provide them via the env.
+if [ -d "${DISTR_DIR}/distr/core/protostar-cfgs" ] ; then
+	cfgs_dir="$(cd "${DISTR_DIR}/distr/core/protostar-cfgs" && pwd -P)"
+	if [ -z "${PROTOSTAR_CONFIG}" ] && [ -f "${cfgs_dir}/protostar.yaml" ] ; then
+		export PROTOSTAR_CONFIG="${cfgs_dir}/protostar.yaml"
+	fi
+	if [ -z "${PROTOSTAR_STATE}" ] ; then
+		export PROTOSTAR_STATE="${cfgs_dir}/state.json"
+	fi
+fi
+
 # Core seeds an empty database itself on startup (first-run autodetect),
 # so no separate priming pass is needed.
 pushd "${DISTR_DIR}/distr/core" > /dev/null
