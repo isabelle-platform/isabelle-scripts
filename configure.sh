@@ -65,6 +65,17 @@ while test -n "$1" ; do
             echo "$2" > "${DISTR_DIR}/.no_serve_root"
             shift 1
             ;;
+        --coreenv-file)
+            # Runtime secrets for the core + the protostar CLI it spawns
+            # (DIGITALOCEAN_TOKEN, STRIPE_*, MIDAIR_IPA_*). The operator points
+            # this at a filled-in env file (same format as protostar-cfgs/.env);
+            # we stash it outside the tarball so it survives in-place updates.
+            # deploy.sh installs it next to the protostar config and run.sh
+            # sources it.
+            cp "$2" "${DISTR_DIR}/.coreenv" || fail "Cannot read env file: $2"
+            chmod 600 "${DISTR_DIR}/.coreenv"
+            shift 1
+            ;;
         --releases-user)
             echo "$2" > "${DISTR_DIR}/.releases_user"
             chmod 600 "${DISTR_DIR}/.releases_user"

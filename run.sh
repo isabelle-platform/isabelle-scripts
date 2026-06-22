@@ -50,6 +50,15 @@ fi
 # (and SSH provisioning keys) are NOT shipped — provide them via the env.
 if [ -d "${DISTR_DIR}/distr/core/protostar-cfgs" ] ; then
 	cfgs_dir="$(cd "${DISTR_DIR}/distr/core/protostar-cfgs" && pwd -P)"
+	# Runtime secrets (DIGITALOCEAN_TOKEN, STRIPE_*, MIDAIR_IPA_*) provisioned
+	# via `configure.sh --coreenv-file` and installed here by deploy.sh. Export
+	# them so the core and the protostar CLI it spawns pick them up. Mirrors the
+	# local-dev flow that sources protostar-cfgs/.env.
+	if [ -f "${cfgs_dir}/.env" ] ; then
+		set -a
+		. "${cfgs_dir}/.env"
+		set +a
+	fi
 	if [ -z "${PROTOSTAR_CONFIG}" ] && [ -f "${cfgs_dir}/protostar.yaml" ] ; then
 		export PROTOSTAR_CONFIG="${cfgs_dir}/protostar.yaml"
 	fi

@@ -133,6 +133,23 @@ function stage_set_up_certs() {
 	return 0
 }
 
+function stage_set_up_protostar_secrets() {
+	# proteos: install the operator-provided runtime secrets next to the
+	# shipped protostar config so run.sh can source them for the core and the
+	# protostar CLI it spawns. The source file comes from
+	# `configure.sh --coreenv-file` and lives outside the tarball, so both it
+	# and this installed copy survive in-place updates (.env is gitignored, so
+	# the release tarball never overwrites it). No-op for flavours that don't
+	# bundle protostar-cfgs or when no secrets were configured.
+	local cfgs_dir="${DISTR_DIR}/distr/core/protostar-cfgs"
+	[ -d "${cfgs_dir}" ] || return 0
+	[ -f "${DISTR_DIR}/.coreenv" ] || return 0
+
+	cp "${DISTR_DIR}/.coreenv" "${cfgs_dir}/.env" || fail "Failed to install protostar env"
+	chmod 600 "${cfgs_dir}/.env"
+	return 0
+}
+
 function stage_set_up_service() {
 	local run_script
 
@@ -214,5 +231,6 @@ if [ -d extras/deploy ] ; then
 	done
 fi
 
+stage_set_up_protostar_secrets
 stage_set_up_service
 stage_set_up_extra_units
