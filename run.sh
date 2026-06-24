@@ -65,6 +65,11 @@ if [ -d "${DISTR_DIR}/distr/core/protostar-cfgs" ] ; then
 	if [ -z "${PROTOSTAR_STATE}" ] ; then
 		export PROTOSTAR_STATE="${cfgs_dir}/state.json"
 	fi
+	# Per-host SSH keys protostar generates at provision time. Lives under the
+	# (gitignored) keys/ dir so it's never in the tarball and survives updates.
+	if [ -z "${PROTOSTAR_KEY_DIR}" ] ; then
+		export PROTOSTAR_KEY_DIR="${cfgs_dir}/keys"
+	fi
 fi
 
 # Core seeds an empty database itself on startup (first-run autodetect),
