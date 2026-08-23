@@ -101,6 +101,7 @@ url_release_intranet="https://releases.interpretica.io/isabelle-intranet-release
 url_release_cloudcpe="https://releases.interpretica.io/isabelle-cloudcpe-release/main-latest/cloudcpe-main-latest.tar.xz"
 url_release_didactist="https://releases.interpretica.io/isabelle-didactist-release/main-latest/didactist-main-latest.tar.xz"
 url_release_midair="https://releases.interpretica.io/isabelle-midair-release/main-latest/midair-main-latest.tar.xz"
+url_release_zine="https://releases.interpretica.io/isabelle-zine-release/main-latest/zine-main-latest.tar.xz"
 
 case "$flavour" in
     equestrian)
@@ -120,6 +121,9 @@ case "$flavour" in
         ;;
     midair)
         target_release="$url_release_midair"
+        ;;
+    zine)
+        target_release="$url_release_zine"
         ;;
     *)
         echo "Unknown flavour: $flavour" >&2

@@ -17,6 +17,10 @@ Isabelle scripts
 
 	./scripts/configure.sh --pub-fqdn midair.test.com --pub-url http://midair.test.com --cert-own "info+midair@test.com"
 
+## Configure for Zine
+
+	./scripts/configure.sh --pub-fqdn zine.test.com --pub-url https://zine.test.com --cert-owner "info+zine@test.com"
+
 ## Deploy
 
 	./scripts/deploy.sh
