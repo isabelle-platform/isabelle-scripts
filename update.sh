@@ -11,6 +11,13 @@ user=""
 password=""
 coreenv=""
 no_verify=""
+# An already-downloaded release to install instead of fetching one.
+#
+# The platform fetches releases on its own machine and copies the bytes over,
+# so that the credentials for the release server never land on a customer's
+# host — where anyone who gets root on their own box would find them. Without
+# this the only way to update was to hand those credentials to every instance.
+archive=""
 
 while test -n "$1" ; do
     case $1 in
@@ -28,6 +35,10 @@ while test -n "$1" ; do
         --no-verify)
             no_verify="y"
             ;;
+        --archive)
+            archive="$2"
+            shift 1
+            ;;
         *)
             fail "Unknown argument: $1"
             ;;
@@ -35,7 +46,9 @@ while test -n "$1" ; do
     shift 1
 done
 
-if [ "${coreenv}" == "y" ]; then
+if [ "${archive}" != "" ] ; then
+    [ -f "${archive}" ] || fail "No such archive: ${archive}"
+elif [ "${coreenv}" == "y" ]; then
     if [ "${user}" == "" ] && [ -f "${DISTR_DIR}/.releases_user" ]; then
         user="$(cat "${DISTR_DIR}/.releases_user")"
     fi
@@ -47,7 +60,7 @@ if [ "${coreenv}" == "y" ]; then
     fi
 fi
 
-if [ "${user}" == "" ] || [ "${password}" == "" ] ; then
+if [ "${archive}" == "" ] && { [ "${user}" == "" ] || [ "${password}" == "" ] ; } ; then
     read -p "Releases user: " user
     read -p "Releases password: " password
 fi
@@ -132,16 +145,28 @@ esac
 
 pushd "${DISTR_DIR}" > /dev/null
 
-touch wget_tmp
-chmod 600 wget_tmp
-echo "user=$user" > wget_tmp
-echo "password=$password" >> wget_tmp
-WGETRC=./wget_tmp wget "${target_release}" -O release.tar.xz || fail "Failed to download release"
-if [ "${no_verify}" != "y" ] ; then
-    WGETRC=./wget_tmp wget "${target_release}.asc" -O release.tar.xz.asc \
-        || fail "Failed to download release signature"
+# Get the release and its detached signature side by side, whether they come
+# off the release server or were handed to us already downloaded.
+if [ "${archive}" != "" ] ; then
+    cp "${archive}" release.tar.xz || fail "Failed to take the supplied archive"
+    if [ "${no_verify}" != "y" ] ; then
+        [ -f "${archive}.asc" ] \
+            || fail "No signature next to the supplied archive: ${archive}.asc"
+        cp "${archive}.asc" release.tar.xz.asc \
+            || fail "Failed to take the supplied archive's signature"
+    fi
+else
+    touch wget_tmp
+    chmod 600 wget_tmp
+    echo "user=$user" > wget_tmp
+    echo "password=$password" >> wget_tmp
+    WGETRC=./wget_tmp wget "${target_release}" -O release.tar.xz || fail "Failed to download release"
+    if [ "${no_verify}" != "y" ] ; then
+        WGETRC=./wget_tmp wget "${target_release}.asc" -O release.tar.xz.asc \
+            || fail "Failed to download release signature"
+    fi
+    rm wget_tmp
 fi
-rm wget_tmp
 
 # Everything below this line modifies the live installation, so the
 # signature has to be good before we reach it.
