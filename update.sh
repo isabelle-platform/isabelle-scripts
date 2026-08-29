@@ -18,6 +18,12 @@ no_verify=""
 # host — where anyone who gets root on their own box would find them. Without
 # this the only way to update was to hand those credentials to every instance.
 archive=""
+# The version name this install is known by on the release server, e.g.
+# `main-288`. Recorded in the distribution directory once the install has
+# succeeded, so an installation can say what it is running — until now nothing
+# in the tree named the release it came from, and the only answer to "which
+# build is this?" was a component commit hash.
+version=""
 
 while test -n "$1" ; do
     case $1 in
@@ -37,6 +43,10 @@ while test -n "$1" ; do
             ;;
         --archive)
             archive="$2"
+            shift 1
+            ;;
+        --version)
+            version="$2"
             shift 1
             ;;
         *)
@@ -114,6 +124,7 @@ url_release_intranet="https://releases.interpretica.io/isabelle-intranet-release
 url_release_cloudcpe="https://releases.interpretica.io/isabelle-cloudcpe-release/main-latest/cloudcpe-main-latest.tar.xz"
 url_release_didactist="https://releases.interpretica.io/isabelle-didactist-release/main-latest/didactist-main-latest.tar.xz"
 url_release_midair="https://releases.interpretica.io/isabelle-midair-release/main-latest/midair-main-latest.tar.xz"
+url_release_proteos="https://releases.interpretica.io/isabelle-proteos-release/main-latest/proteos-main-latest.tar.xz"
 url_release_zine="https://releases.interpretica.io/isabelle-zine-release/main-latest/zine-main-latest.tar.xz"
 
 case "$flavour" in
@@ -135,6 +146,9 @@ case "$flavour" in
     midair)
         target_release="$url_release_midair"
         ;;
+    proteos)
+        target_release="$url_release_proteos"
+        ;;
     zine)
         target_release="$url_release_zine"
         ;;
@@ -142,6 +156,18 @@ case "$flavour" in
         echo "Unknown flavour: $flavour" >&2
         exit 1
 esac
+
+# Fall back to the name the archive carries: releases are published as
+# `<flavour>-<version>.tar.xz`, so `midair-main-288.tar.xz` is `main-288`.
+if [ "${version}" == "" ] ; then
+    if [ "${archive}" != "" ] ; then
+        version="$(basename "${archive}")"
+    else
+        version="$(basename "${target_release}")"
+    fi
+    version="${version#${flavour}-}"
+    version="${version%.tar.xz}"
+fi
 
 pushd "${DISTR_DIR}" > /dev/null
 
@@ -178,6 +204,9 @@ ${TOP_DIR}/service.sh stop || fail "Failed to stop service"
 rm -rf distr/ui
 tar xvf release.tar.xz
 rm -f release.tar.xz release.tar.xz.asc
+
+# Written last: a half-finished install must not claim to be the new version.
+echo "${version}" > .version
 
 popd > /dev/null
 
