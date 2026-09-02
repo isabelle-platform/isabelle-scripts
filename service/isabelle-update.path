@@ -1,0 +1,13 @@
+[Unit]
+Description=Watch for an Isabelle self-update request (<flavour>)
+
+[Path]
+# The core cannot start a root unit, and must not be able to. What it can do is
+# write one file; this is what notices. What lands in that file is checked by
+# update-runner.sh before any of it is used — the core is the part of the
+# system exposed to the internet, and its requests are treated as requests.
+PathExists=<distr_dir>/data/raw/platform/update-request
+Unit=isabelle-update-<flavour>.service
+
+[Install]
+WantedBy=multi-user.target

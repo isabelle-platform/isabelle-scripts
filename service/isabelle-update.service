@@ -1,0 +1,13 @@
+[Unit]
+Description=Isabelle self-update (<flavour>)
+Documentation=https://github.com/isabelle-platform/isabelle-scripts
+
+[Service]
+Type=oneshot
+# Root, and deliberately so: this is the one thing the platform does that
+# needs it — stopping the service, replacing the distribution, starting it
+# again. Everything else runs as the service user, which is the point of
+# having this separate unit at all.
+ExecStart=<top_dir>/update-runner.sh
+# Its own control group, so stopping the core does not stop the update that is
+# stopping the core.

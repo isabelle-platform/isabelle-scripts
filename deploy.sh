@@ -157,12 +157,39 @@ function stage_set_up_service() {
 
 	run_script="$(echo $(realpath ${DISTR_DIR}/scripts/run.sh) | sed 's/\//\\\//g')"
 
+	local distr_dir_esc
+	local top_dir_esc
+	distr_dir_esc="$(echo "$(cd "${DISTR_DIR}" && pwd -P)" | sed 's/\//\\\//g')"
+	top_dir_esc="$(echo "$(cd "${TOP_DIR}" && pwd -P)" | sed 's/\//\\\//g')"
+
 	cat service/isabelle.service \
-    	| sed "s/<run_script>/${run_script}/g" > /lib/systemd/system/isabelle-${flavour}.service
+    	| sed -e "s/<run_script>/${run_script}/g" \
+    	      -e "s/<distr_dir>/${distr_dir_esc}/g" > /lib/systemd/system/isabelle-${flavour}.service
+
+	# The core runs as www-data and cannot install python packages, so the
+	# garbage collector's dependencies are put in at deploy time, as root.
+	# run.sh checks the same marker and does nothing when this has run.
+	if [ -d "${DISTR_DIR}/distr/core/isabelle-gc" ] \
+	   && [ ! -f "${DISTR_DIR}/distr/core/isabelle-gc/.installed" ] ; then
+		pushd "${DISTR_DIR}/distr/core/isabelle-gc" > /dev/null
+		./install.sh && touch .installed
+		popd > /dev/null
+	fi
+
+	# Self-update, which is the one thing the core cannot do as itself: a root
+	# unit, started by a path unit when the core writes a request file. The
+	# request is checked by update-runner.sh before any of it is used.
+	cat service/isabelle-update.service \
+	    | sed -e "s/<top_dir>/${top_dir_esc}/g" \
+	          -e "s/<flavour>/${flavour}/g" > /lib/systemd/system/isabelle-update-${flavour}.service
+	cat service/isabelle-update.path \
+	    | sed -e "s/<distr_dir>/${distr_dir_esc}/g" \
+	          -e "s/<flavour>/${flavour}/g" > /lib/systemd/system/isabelle-update-${flavour}.path
 
     systemctl daemon-reload
     systemctl restart isabelle-${flavour}
     systemctl enable isabelle-${flavour}
+    systemctl enable --now isabelle-update-${flavour}.path
     return 0
 }
 
