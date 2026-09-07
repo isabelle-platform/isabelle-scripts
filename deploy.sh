@@ -166,6 +166,13 @@ function stage_set_up_service() {
     	| sed -e "s/<run_script>/${run_script}/g" \
     	      -e "s/<distr_dir>/${distr_dir_esc}/g" > /lib/systemd/system/isabelle-${flavour}.service
 
+	# The unit runs the core as www-data and promises it the distribution
+	# directory; this is where that promise is kept. Unpacked by root, the tree
+	# carries whatever uid the archive was built under, and the core's first
+	# writes — the secret store under data/, the isabelle-gc install marker —
+	# fail with "Permission denied" before it has served a single request.
+	chown -R www-data:www-data "${DISTR_DIR}"
+
 	# The core runs as www-data and cannot install python packages, so the
 	# garbage collector's dependencies are put in at deploy time, as root.
 	# run.sh checks the same marker and does nothing when this has run.
