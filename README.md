@@ -15,7 +15,33 @@ Isabelle scripts
 	
 ## Configure for Midair
 
-	./scripts/configure.sh --pub-fqdn midair.test.com --pub-url http://midair.test.com --cert-own "info+midair@test.com"
+	./scripts/configure.sh --pub-fqdn midair.test.com --pub-url http://midair.test.com --cert-own "info+midair@test.com" --features-file ./midair-features.js
+
+## Features
+
+`--features-file` takes the path to a `features.js` document saying what this
+installation is allowed to do. `deploy.sh` and `update.sh` copy it into
+`data/raw/`, where the core reads it once at startup and never writes it;
+there is no endpoint that edits it, so no session and no token can widen it
+from inside the running server.
+
+It belongs to the installation rather than to the release: two hosts running
+the same tarball may be entitled to different things, so it is not shipped in
+the tarball, and re-installing it is part of every update.
+
+The document is a JSON object of feature name to descriptor. These scripts
+check that shape and nothing else — which names exist and what their
+descriptors mean is the flavour's business, so see the flavour's own
+documentation for the list it understands.
+
+	{
+	    "some_feature": true,
+	    "another_feature": { "limit": 10 }
+	}
+
+Passing no `--features-file` writes nothing at all, which leaves an existing
+installation with whatever `features.js` it already has: `tar` overwrites
+only the files a release actually carries.
 
 ## Configure for Zine
 

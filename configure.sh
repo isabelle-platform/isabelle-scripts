@@ -65,6 +65,17 @@ while test -n "$1" ; do
             echo "$2" > "${DISTR_DIR}/.no_serve_root"
             shift 1
             ;;
+        --features-file)
+            # What this installation is allowed to do: a `features.js`
+            # document, whose contents are the flavour's business and not this
+            # script's. A property of the installation rather than of the
+            # release, since two hosts running the same tarball may be
+            # entitled to different things — so we stash it outside the
+            # tarball, and deploy.sh/update.sh install it into data/raw where
+            # the core reads it once at startup.
+            cp "$2" "${DISTR_DIR}/.features" || fail "Cannot read features file: $2"
+            shift 1
+            ;;
         --coreenv-file)
             # Runtime secrets for the core + the protostar CLI it spawns
             # (DIGITALOCEAN_TOKEN, STRIPE_*, MIDAIR_IPA_*). The operator points

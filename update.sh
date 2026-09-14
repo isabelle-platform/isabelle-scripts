@@ -212,6 +212,11 @@ popd > /dev/null
 
 chown -R www-data:www-data "${DISTR_DIR}"
 
+# The tarball may carry its own data/raw; whatever this installation was
+# configured to be allowed to do is re-asserted over it, exactly as at deploy
+# time. Before the hooks, for the same reason as there.
+install_features
+
 # Re-apply install-time extras hooks: the tarball just overwrote distr/ and
 # data/raw/, so any data the hooks injected (e.g. bublik_ui_url, SSH creds in
 # data/raw/settings.js) needs to be re-applied before the core starts and

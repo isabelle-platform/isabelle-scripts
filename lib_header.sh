@@ -69,3 +69,47 @@ fi
 
 # cookie_http_insecure
 # no_serve_root
+
+# Install the operator-provided `features.js` where the core reads it.
+#
+# What a host is allowed to do belongs to the installation, not to the
+# release: two hosts running the same tarball may be entitled to different
+# things, so the document comes from `configure.sh --features-file` and lives
+# outside the tarball. The core reads it once at startup and never writes it,
+# so this has to run before the service is (re)started, and again after an
+# update unpacks a new tarball over `data/raw`.
+#
+# The contents are the flavour's business. This script neither knows nor
+# checks which names mean anything; it checks only that the document is the
+# shape the core can read, because a malformed one declares *nothing* and
+# that failure would otherwise surface much later, as somebody being refused
+# something they are entitled to.
+#
+# Nothing configured means nothing written. That is deliberate: an
+# installation set up before this option existed keeps whatever `features.js`
+# it already has, and `tar` leaves files the archive does not contain alone.
+function install_features() {
+	local source="${DISTR_DIR}/.features"
+	local target="${DISTR_DIR}/data/raw/features.js"
+
+	[ -f "${source}" ] || return 0
+	[ -d "${DISTR_DIR}/data/raw" ] || fail "No data/raw to install ${target} into"
+
+	# jq is one of the deploy dependencies, so this runs on a deployed host
+	# and is skipped anywhere it is genuinely unavailable rather than turning
+	# a missing tool into a failed update.
+	if command -v jq > /dev/null 2>&1 ; then
+		jq -e 'type == "object"' "${source}" > /dev/null 2>&1 ||
+			fail "${source} is not a JSON object of feature name to descriptor"
+	fi
+
+	cp "${source}" "${target}" || fail "Cannot install ${target}"
+
+	# The core reads this as the service user. An update writes it after the
+	# tree has already been handed over, so match the directory rather than
+	# leave one root-owned file behind in it.
+	chown --reference="${DISTR_DIR}/data/raw" "${target}" 2> /dev/null || true
+
+	echo "Features: installed $(jq -r 'keys | join(", ")' "${target}" 2> /dev/null || echo "${target}")"
+	return 0
+}

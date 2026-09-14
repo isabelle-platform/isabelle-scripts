@@ -255,6 +255,10 @@ stage_set_up_certs
 
 stage_set_up_database
 
+# Before the extras hooks, so a flavour that wants to say something else about
+# its features can still overwrite what was configured here.
+install_features
+
 # Run install-time extras hooks BEFORE the core service starts: hooks may seed
 # data/raw/* (e.g. bublik-settings.sh injects bublik_ui_url and the SSH creds
 # the core uses to docker-exec the bublik containers), and the core's first
