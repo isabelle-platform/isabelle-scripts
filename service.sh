@@ -9,6 +9,15 @@ cd "${TOP_DIR}"
 action="$1"
 service_name="isabelle-${flavour}"
 
+# Starting is where a release's extra units are put in place, rather than in
+# update.sh: an update runs the update.sh that was on the host before it,
+# which knows nothing of what the new release changed, while this script is
+# a fresh process of the release just unpacked. So a service a release
+# introduces is installed on the very update that brings it.
+case "${action}" in
+	start|restart) install_extra_units ;;
+esac
+
 systemctl "${action}" "${service_name}"
 
 if [ -d extras/systemd ] ; then

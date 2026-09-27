@@ -227,8 +227,4 @@ if [ -d "${TOP_DIR}/extras/deploy" ] ; then
 	done
 fi
 
-# The release may bring a service the host has never had, or change one it
-# has; service.sh starts units by name, so the files go in first.
-install_extra_units
-
 ${TOP_DIR}/service.sh start || fail "Failed to start service"
