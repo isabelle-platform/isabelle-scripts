@@ -208,35 +208,13 @@ function stage_set_up_database() {
 function stage_set_up_extra_units() {
 	[ -d extras/systemd ] || return 0
 
-	local distr_dir_norm
-	local top_dir_norm
-	distr_dir_norm="$(cd "${DISTR_DIR}" && pwd -P)"
-	top_dir_norm="$(cd "${TOP_DIR}" && pwd -P)"
-
-	local distr_dir_esc="$(echo ${distr_dir_norm} | sed 's/\//\\\//g')"
-	local top_dir_esc="$(echo ${top_dir_norm} | sed 's/\//\\\//g')"
-	local pub_fqdn_esc="$(echo ${pub_fqdn} | sed 's/\//\\\//g')"
-	local flavour_esc="$(echo ${flavour} | sed 's/\//\\\//g')"
+	# Written and enabled the same way an update does it: see lib_header.sh.
+	install_extra_units
 
 	local unit_src
-	local unit_name
 	for unit_src in extras/systemd/*.service ; do
 		[ -f "${unit_src}" ] || continue
-		unit_name="$(basename "${unit_src}")"
-		sed -e "s/<distr_dir>/${distr_dir_esc}/g" \
-		    -e "s/<top_dir>/${top_dir_esc}/g" \
-		    -e "s/<pub_fqdn>/${pub_fqdn_esc}/g" \
-		    -e "s/<flavour>/${flavour_esc}/g" \
-		    "${unit_src}" > "/lib/systemd/system/${unit_name}"
-	done
-
-	systemctl daemon-reload
-
-	for unit_src in extras/systemd/*.service ; do
-		[ -f "${unit_src}" ] || continue
-		unit_name="$(basename "${unit_src}")"
-		systemctl enable "${unit_name}"
-		systemctl restart "${unit_name}"
+		systemctl restart "$(basename "${unit_src}")"
 	done
 	return 0
 }

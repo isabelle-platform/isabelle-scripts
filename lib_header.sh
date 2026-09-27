@@ -113,3 +113,53 @@ function install_features() {
 	echo "Features: installed $(jq -r 'keys | join(", ")' "${target}" 2> /dev/null || echo "${target}")"
 	return 0
 }
+
+# Write the release's extra systemd units and tell systemd about them.
+#
+# A flavour ships its own services beside the core — bublik, multiverse — as
+# unit templates in extras/systemd. `service.sh` starts and stops every one of
+# them, but only by name: the unit file itself has to be in /lib/systemd/system
+# first. Deploy always wrote them; an update did not, so a service that a new
+# release introduced was never installed on a host that was deployed before
+# it, and `service.sh start` answered "Unit ... not found" while the update
+# reported success. Both now go through here.
+#
+# Every unit is rewritten, not only the new ones: a release may change a unit
+# it already shipped, and a host should run the one its release describes.
+# Enabled too, so it comes back after a reboot. Starting is the caller's
+# business — deploy restarts each one, an update starts them all with the core.
+function install_extra_units() {
+	[ -d "${TOP_DIR}/extras/systemd" ] || return 0
+	command -v systemctl > /dev/null 2>&1 || return 0
+
+	local distr_dir_norm
+	local top_dir_norm
+	distr_dir_norm="$(cd "${DISTR_DIR}" && pwd -P)"
+	top_dir_norm="$(cd "${TOP_DIR}" && pwd -P)"
+
+	local distr_dir_esc="$(echo ${distr_dir_norm} | sed 's/\//\\\//g')"
+	local top_dir_esc="$(echo ${top_dir_norm} | sed 's/\//\\\//g')"
+	local pub_fqdn_esc="$(echo ${pub_fqdn} | sed 's/\//\\\//g')"
+	local flavour_esc="$(echo ${flavour} | sed 's/\//\\\//g')"
+
+	local unit_src
+	local unit_name
+	for unit_src in "${TOP_DIR}"/extras/systemd/*.service ; do
+		[ -f "${unit_src}" ] || continue
+		unit_name="$(basename "${unit_src}")"
+		sed -e "s/<distr_dir>/${distr_dir_esc}/g" \
+		    -e "s/<top_dir>/${top_dir_esc}/g" \
+		    -e "s/<pub_fqdn>/${pub_fqdn_esc}/g" \
+		    -e "s/<flavour>/${flavour_esc}/g" \
+		    "${unit_src}" > "/lib/systemd/system/${unit_name}" ||
+			fail "Cannot write /lib/systemd/system/${unit_name}"
+	done
+
+	systemctl daemon-reload
+
+	for unit_src in "${TOP_DIR}"/extras/systemd/*.service ; do
+		[ -f "${unit_src}" ] || continue
+		systemctl enable "$(basename "${unit_src}")"
+	done
+	return 0
+}
