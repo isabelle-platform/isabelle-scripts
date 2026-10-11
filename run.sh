@@ -14,6 +14,16 @@ function get_cmd_line() {
 		update_script_arg="--update-script ${TOP_DIR}/update-coreenv.sh"
 	fi
 
+	# Cores before 2.1.0 reject --cors-origin (they allowed every origin
+	# anyway), so pass it only when the shipped run.sh knows it.
+	local cors_origin_args=""
+	if grep -q -- '--cors-origin' "${DISTR_DIR}/distr/core/run.sh" 2> /dev/null ; then
+		local origin
+		for origin in ${cors_origins} ; do
+			cors_origin_args="${cors_origin_args} --cors-origin ${origin}"
+		done
+	fi
+
 	echo ./run.sh --port "${core_port}" \
 		--pub-url "${pub_url}" \
 		--pub-fqdn "${pub_fqdn}" \
@@ -21,7 +31,8 @@ function get_cmd_line() {
 		--database "${db}" \
 		--data-path "../../data/raw" \
 		${cookie_http_insecure:+--cookie-http-insecure} \
-		${update_script_arg}
+		${update_script_arg} \
+		${cors_origin_args}
 }
 
 if [ ! -f "${DISTR_DIR}/distr/core/isabelle-gc/.installed" ] ; then

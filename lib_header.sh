@@ -31,6 +31,8 @@ no_fw="$(cat ${DISTR_DIR}/.no_fw 2> /dev/null)"
 db="$(cat ${DISTR_DIR}/.db 2> /dev/null)"
 cookie_http_insecure="$(cat ${DISTR_DIR}/.cookie_http_insecure 2> /dev/null)"
 no_serve_root="$(cat ${DISTR_DIR}/.no_serve_root 2> /dev/null)"
+# One origin per line; see `configure.sh --cors-origin`.
+cors_origins="$(cat ${DISTR_DIR}/.cors_origins 2> /dev/null)"
 
 if [ "$db_port" == "" ] ; then
 	db_port="27017"
@@ -69,6 +71,7 @@ fi
 
 # cookie_http_insecure
 # no_serve_root
+# cors_origins
 
 # Install the operator-provided `features.js` where the core reads it.
 #

@@ -7,6 +7,9 @@ cd "${TOP_DIR}"
 
 . ./lib_header.sh
 
+# Set once the first --cors-origin of this run has truncated .cors_origins.
+cors_origins_reset=""
+
 while test -n "$1" ; do
     case $1 in
         --flavour)
@@ -59,6 +62,21 @@ while test -n "$1" ; do
             ;;
         --cookie-http-insecure)
             echo "$2" > "${DISTR_DIR}/.cookie_http_insecure"
+            shift 1
+            ;;
+        --cors-origin)
+            # Extra browser origins allowed to call the API, beyond the one
+            # derived from --pub-url — e.g. a public site whose forms post to
+            # this installation. Repeat the flag for several. The first one in
+            # a run replaces the stored list, so re-running configure.sh with
+            # the full list is idempotent; `--cors-origin ""` clears it.
+            if [ -z "${cors_origins_reset}" ] ; then
+                : > "${DISTR_DIR}/.cors_origins"
+                cors_origins_reset=1
+            fi
+            if [ -n "$2" ] ; then
+                echo "$2" >> "${DISTR_DIR}/.cors_origins"
+            fi
             shift 1
             ;;
         --no-serve-root)

@@ -17,6 +17,21 @@ Isabelle scripts
 
 	./scripts/configure.sh --pub-fqdn midair.test.com --pub-url http://midair.test.com --cert-own "info+midair@test.com" --features-file ./midair-features.js
 
+## CORS
+
+The core answers cross-origin requests only from the origin in `--pub-url`.
+A site elsewhere whose pages call this installation — say, contact and
+waitlist forms on a public website posting to the intranet — needs its origin
+listed, or the browser refuses to read the response and the form reports a
+failure even though the server handled the request:
+
+	./scripts/configure.sh --cors-origin https://interpretica.io --cors-origin https://www.interpretica.io
+
+Repeat the flag for several origins. Each run that passes `--cors-origin`
+replaces the stored list, so pass all of them every time; `--cors-origin ""`
+clears it. Restart the service to apply. The core logs
+`CORS: allowing origin …` for each one at startup.
+
 ## Features
 
 `--features-file` takes the path to a `features.js` document saying what this
