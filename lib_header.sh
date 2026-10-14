@@ -29,6 +29,7 @@ server_type="$(cat ${DISTR_DIR}/.server_type 2> /dev/null)"
 no_cert="$(cat ${DISTR_DIR}/.no_cert 2> /dev/null)"
 no_fw="$(cat ${DISTR_DIR}/.no_fw 2> /dev/null)"
 no_harden="$(cat ${DISTR_DIR}/.no_harden 2> /dev/null)"
+harden_trust="$(cat ${DISTR_DIR}/.harden_trust 2> /dev/null)"
 db="$(cat ${DISTR_DIR}/.db 2> /dev/null)"
 cookie_http_insecure="$(cat ${DISTR_DIR}/.cookie_http_insecure 2> /dev/null)"
 no_serve_root="$(cat ${DISTR_DIR}/.no_serve_root 2> /dev/null)"
@@ -66,6 +67,7 @@ fi
 # no_cert
 # no_fw
 # no_harden
+# harden_trust
 
 if [ "${db}" == "" ] ; then
 	db="mongo"
@@ -186,7 +188,13 @@ function install_hardening() {
 	[ -x "${TOP_DIR}/harden.sh" ] || return 0
 	command -v systemctl > /dev/null 2>&1 || return 0
 
-	"${TOP_DIR}/harden.sh" ||
+	local args=()
+	local addr
+	for addr in ${harden_trust} ; do
+		args+=(--trust "${addr}")
+	done
+
+	"${TOP_DIR}/harden.sh" "${args[@]}" ||
 		echo "WARNING: the host is not fully hardened; see above. The next start tries again." >&2
 	return 0
 }

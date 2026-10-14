@@ -66,6 +66,12 @@ while test -n "$1" ; do
             echo "$2" > "${DISTR_DIR}/.no_harden"
             shift 1
             ;;
+        --harden-trust)
+            # Addresses fail2ban never bans: the hosts that manage this one.
+            # Space-separated; each is an address or a CIDR.
+            echo "$2" > "${DISTR_DIR}/.harden_trust"
+            shift 1
+            ;;
         --cookie-http-insecure)
             echo "$2" > "${DISTR_DIR}/.cookie_http_insecure"
             shift 1

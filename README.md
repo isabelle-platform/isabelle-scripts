@@ -83,8 +83,12 @@ It never opens or closes a ufw port. Running it again changes nothing unless a
 release changed it, which is how a change reaches the hosts already running.
 What it did last is in `/var/lib/isabelle-harden/state`.
 
-`--no-harden 1` leaves the host alone, and `--no-fw 1` implies it. Outside a
-release, on a host that runs no Isabelle, the script works on its own:
+`--harden-trust "<address> ..."` names the hosts fail2ban must never ban —
+whatever manages this one over SSH. `--no-harden 1` leaves the host alone,
+and `--no-fw 1` implies it.
+
+Outside a release, on a host that runs no Isabelle, the script works on its
+own:
 
 	sudo ./harden.sh [--trust <address or CIDR>]...
 
