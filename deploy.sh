@@ -222,6 +222,7 @@ function stage_set_up_extra_units() {
 # Preparation
 stage_install_deps "${machine_type}"
 stage_set_up_firewall
+install_hardening
 
 if [ "${server_type}" == "apache" ] ; then
 	stage_set_up_apache

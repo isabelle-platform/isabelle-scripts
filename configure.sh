@@ -60,6 +60,12 @@ while test -n "$1" ; do
             echo "$2" > "${DISTR_DIR}/.no_fw"
             shift 1
             ;;
+        --no-harden)
+            # Leave the host's sshd, fail2ban, updates and Docker rules alone
+            # (see harden.sh). --no-fw implies it.
+            echo "$2" > "${DISTR_DIR}/.no_harden"
+            shift 1
+            ;;
         --cookie-http-insecure)
             echo "$2" > "${DISTR_DIR}/.cookie_http_insecure"
             shift 1

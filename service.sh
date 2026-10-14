@@ -14,8 +14,14 @@ service_name="isabelle-${flavour}"
 # which knows nothing of what the new release changed, while this script is
 # a fresh process of the release just unpacked. So a service a release
 # introduces is installed on the very update that brings it.
+#
+# Hardening is put in place here too, for the same reason: it is how a
+# release that changes harden.sh reaches the hosts already running.
 case "${action}" in
-	start|restart) install_extra_units ;;
+	start|restart)
+		install_extra_units
+		install_hardening
+		;;
 esac
 
 systemctl "${action}" "${service_name}"

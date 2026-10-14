@@ -28,6 +28,7 @@ machine_type="$(cat ${DISTR_DIR}/.machine_type 2> /dev/null)"
 server_type="$(cat ${DISTR_DIR}/.server_type 2> /dev/null)"
 no_cert="$(cat ${DISTR_DIR}/.no_cert 2> /dev/null)"
 no_fw="$(cat ${DISTR_DIR}/.no_fw 2> /dev/null)"
+no_harden="$(cat ${DISTR_DIR}/.no_harden 2> /dev/null)"
 db="$(cat ${DISTR_DIR}/.db 2> /dev/null)"
 cookie_http_insecure="$(cat ${DISTR_DIR}/.cookie_http_insecure 2> /dev/null)"
 no_serve_root="$(cat ${DISTR_DIR}/.no_serve_root 2> /dev/null)"
@@ -64,6 +65,7 @@ fi
 
 # no_cert
 # no_fw
+# no_harden
 
 if [ "${db}" == "" ] ; then
 	db="mongo"
@@ -164,5 +166,27 @@ function install_extra_units() {
 		[ -f "${unit_src}" ] || continue
 		systemctl enable "$(basename "${unit_src}")"
 	done
+	return 0
+}
+
+# Harden the host: security updates, sshd, fail2ban, Docker's published ports.
+# See harden.sh for what and why.
+#
+# Run by deploy and on every service start, so a release that changes it
+# reaches the hosts already running without anyone having to redeploy them.
+# Never fatal: a host that could not be hardened this time still has to come
+# back up, and the next start tries again.
+#
+# `--no-fw` says the host's network is somebody else's to manage — a
+# developer's machine, a host fenced from outside — and that covers this too.
+function install_hardening() {
+	if [ "${no_fw}" != "" ] || [ "${no_harden}" != "" ] ; then
+		return 0
+	fi
+	[ -x "${TOP_DIR}/harden.sh" ] || return 0
+	command -v systemctl > /dev/null 2>&1 || return 0
+
+	"${TOP_DIR}/harden.sh" ||
+		echo "WARNING: the host is not fully hardened; see above. The next start tries again." >&2
 	return 0
 }
