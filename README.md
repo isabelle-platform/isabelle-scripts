@@ -66,6 +66,28 @@ only the files a release actually carries.
 
 	./scripts/deploy.sh
 
+## Hardening
+
+`deploy.sh`, and `service.sh` on every start, run `harden.sh`, which puts in
+place what every machine on the internet needs:
+
+* security updates, applied unattended (no automatic reboot);
+* sshd: keys only, and root by key only — as a drop-in, so `Match` blocks a
+  flavour adds for its own users keep working;
+* fail2ban on sshd, plus `recidive` for addresses that keep coming back;
+* the ports Docker publishes kept off the network. Docker's rules come
+  before ufw's, so without this a published container port is open to the
+  world whatever ufw says.
+
+It never opens or closes a ufw port. Running it again changes nothing unless a
+release changed it, which is how a change reaches the hosts already running.
+What it did last is in `/var/lib/isabelle-harden/state`.
+
+`--no-harden 1` leaves the host alone, and `--no-fw 1` implies it. Outside a
+release, on a host that runs no Isabelle, the script works on its own:
+
+	sudo ./harden.sh [--trust <address or CIDR>]...
+
 ## Release signature verification
 
 `update.sh` downloads `<release>.tar.xz.asc` next to the release and checks
