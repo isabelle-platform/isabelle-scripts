@@ -135,6 +135,26 @@ PY
 	return 0
 }
 
+# Give the core a home it can write to, with the user-level bin directory on
+# PATH. Exports HOME and PATH when $1 (the home to use) can be created and
+# written; otherwise leaves both untouched so the caller keeps whatever it had.
+#
+# The service runs as an unprivileged user whose own home (www-data's /var/www)
+# belongs to root, under a sandbox that lets it write only inside the
+# installation — so tools the core installs or runs for its users (the AI
+# assistants' CLIs, their sign-ins and caches; git and ssh state) had nowhere
+# to go, and every install failed. A home inside the installation fixes that
+# and is kept across updates. Returns 0 either way: a missing home is not fatal,
+# the core simply falls back to whatever HOME it inherited.
+function setup_core_home() {
+	local core_home="$1"
+	if [ -n "${core_home}" ] && mkdir -p "${core_home}" 2> /dev/null && [ -w "${core_home}" ] ; then
+		export HOME="${core_home}"
+		export PATH="${HOME}/.local/bin:${PATH}"
+	fi
+	return 0
+}
+
 function install_features() {
 	local source="${DISTR_DIR}/.features"
 	local target="${DISTR_DIR}/data/raw/features.js"
