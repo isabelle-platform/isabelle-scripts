@@ -46,6 +46,19 @@ fi
 cmd_line="$(get_cmd_line)"
 export BINARY="./${flavour}-core"
 
+# A home the core can write to. The service runs as an unprivileged user whose
+# own home (www-data's /var/www) belongs to root, under a sandbox that lets it
+# write only inside the installation — so tools the core installs or runs for
+# its users (the AI assistants' CLIs, their sign-ins and caches; git and ssh
+# state) had nowhere to go, and every install failed. Give it one inside the
+# installation, kept across updates, with the user-level bin directory those
+# tools install into on the PATH.
+core_home="${DISTR_DIR}/home"
+if mkdir -p "${core_home}" 2> /dev/null && [ -w "${core_home}" ] ; then
+	export HOME="${core_home}"
+	export PATH="${HOME}/.local/bin:${PATH}"
+fi
+
 # proteos ships the protostar CLI inside the archive (distr/core/protostar);
 # point the plugin at it via an absolute path so it resolves regardless of
 # the core's cwd. Guarded on the file, so it's a no-op for flavours that
