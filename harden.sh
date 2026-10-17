@@ -35,7 +35,7 @@
 # Usage: harden.sh [--trust <address or CIDR>]...
 #   --trust  never banned by fail2ban; for the hosts that manage this one.
 
-HARDEN_VERSION="1"
+HARDEN_VERSION="2"
 
 STATE_DIR="/var/lib/isabelle-harden"
 SSHD_DROPIN="/etc/ssh/sshd_config.d/00-isabelle-harden.conf"
@@ -265,6 +265,11 @@ function harden_docker() {
 # container. Docker publishes ports ahead of ufw; this is the chain it leaves
 # for saying otherwise. Loopback, Docker'"'"'s own bridges and the veth pairs
 # behind them are not real interfaces, and replies are not new connections.
+#
+# DOCKER-USER sees everything the host forwards, not only what goes to a
+# container, so each rule also names the way out: a Docker bridge. Without it
+# the host stops routing whatever else it carries -- a VPN into a VirtualBox or
+# libvirt network, say.
 set -u
 iptables -N DOCKER-USER 2> /dev/null || true
 status=0
@@ -272,8 +277,12 @@ for dev in $(ip -o link show | awk -F": " "{print \$2}" | cut -d@ -f1) ; do
 	case "${dev}" in
 		lo|docker*|br-*|veth*) continue ;;
 	esac
-	iptables -C DOCKER-USER -i "${dev}" -m conntrack --ctstate NEW -j DROP 2> /dev/null ||
-		iptables -I DOCKER-USER -i "${dev}" -m conntrack --ctstate NEW -j DROP || status=1
+	# The rules from before the way out was named dropped all forwarding.
+	while iptables -D DOCKER-USER -i "${dev}" -m conntrack --ctstate NEW -j DROP 2> /dev/null ; do : ; done
+	for out in "docker+" "br-+" ; do
+		iptables -C DOCKER-USER -i "${dev}" -o "${out}" -m conntrack --ctstate NEW -j DROP 2> /dev/null ||
+			iptables -I DOCKER-USER -i "${dev}" -o "${out}" -m conntrack --ctstate NEW -j DROP || status=1
+	done
 done
 exit "${status}"'
 	[ "$?" == "2" ] && { warn docker "cannot write ${FENCE_BIN}" ; return ; }
