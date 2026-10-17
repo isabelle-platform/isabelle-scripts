@@ -248,6 +248,9 @@ if [ -d extras/deploy ] ; then
 	done
 fi
 
+# After the hooks, which keep platform sections of their own.
+install_platform
+
 stage_set_up_protostar_secrets
 stage_set_up_service
 stage_set_up_extra_units

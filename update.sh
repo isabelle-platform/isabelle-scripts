@@ -227,4 +227,7 @@ if [ -d "${TOP_DIR}/extras/deploy" ] ; then
 	done
 fi
 
+# After the hooks, which keep platform sections of their own.
+install_platform
+
 ${TOP_DIR}/service.sh start || fail "Failed to start service"

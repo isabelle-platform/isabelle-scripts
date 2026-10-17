@@ -95,6 +95,46 @@ fi
 # Nothing configured means nothing written. That is deliberate: an
 # installation set up before this option existed keeps whatever `features.js`
 # it already has, and `tar` leaves files the archive does not contain alone.
+# The platform around an installation, as its operator sees it: how to reach
+# what the platform runs for it (Bublik, say) and who it is to the services it
+# draws on (the releases portal). None of it is the installation's users' to
+# configure, so none of it lives in the settings they edit. Each provider keeps
+# its own section as ${DISTR_DIR}/.platform-<section>.json - protostar writes
+# `releases`, a flavour's extras `bublik` - kept across updates like .features;
+# this assembles them into data/raw/platform.json, root-owned and readable by
+# the core's group only, so not even the core can change it. Run after the
+# extras hooks: they write sections of their own.
+function install_platform() {
+	local target="${DISTR_DIR}/data/raw/platform.json"
+	local sources=( "${DISTR_DIR}"/.platform-*.json )
+
+	[ -e "${sources[0]}" ] || return 0
+	[ -d "${DISTR_DIR}/data/raw" ] || fail "No data/raw to install ${target} into"
+
+	python3 - "${target}" "${sources[@]}" <<'PY' || fail "Cannot assemble ${target}"
+import json, os, sys
+target, sources = sys.argv[1], sys.argv[2:]
+doc = {}
+for path in sorted(sources):
+    name = os.path.basename(path)[len(".platform-"):-len(".json")]
+    with open(path) as f:
+        section = json.load(f)
+    if not isinstance(section, dict):
+        sys.exit("%s is not a JSON object" % path)
+    doc[name] = section
+tmp = target + ".tmp"
+with open(tmp, "w") as f:
+    json.dump(doc, f, indent=2)
+os.replace(tmp, target)
+print("Platform: installed " + ", ".join(sorted(doc)))
+PY
+
+	chown root "${target}" 2> /dev/null || true
+	chgrp --reference="${DISTR_DIR}/data/raw" "${target}" 2> /dev/null || true
+	chmod 640 "${target}"
+	return 0
+}
+
 function install_features() {
 	local source="${DISTR_DIR}/.features"
 	local target="${DISTR_DIR}/data/raw/features.js"
