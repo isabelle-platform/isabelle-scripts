@@ -8,7 +8,8 @@
 #   * security updates, applied unattended;
 #   * sshd: keys only, and root by key only;
 #   * fail2ban on sshd, with repeat offenders banned for a week;
-#   * the ports Docker publishes kept off the network.
+#   * the ports Docker publishes kept off the network;
+#   * the journal kept for 14 days, and no longer.
 #
 # The last one is the reason this is more than a checklist. Docker writes its
 # own iptables rules ahead of ufw's, so a container published as `5672:5672`
@@ -35,7 +36,7 @@
 # Usage: harden.sh [--trust <address or CIDR>]...
 #   --trust  never banned by fail2ban; for the hosts that manage this one.
 
-HARDEN_VERSION="2"
+HARDEN_VERSION="3"
 
 STATE_DIR="/var/lib/isabelle-harden"
 SSHD_DROPIN="/etc/ssh/sshd_config.d/00-isabelle-harden.conf"
@@ -43,6 +44,7 @@ F2B_JAIL="/etc/fail2ban/jail.d/isabelle-harden.local"
 AUTO_UPGRADES="/etc/apt/apt.conf.d/20auto-upgrades"
 FENCE_BIN="/usr/local/sbin/isabelle-docker-fence"
 FENCE_UNIT="/etc/systemd/system/isabelle-docker-fence.service"
+JOURNALD_DROPIN="/etc/systemd/journald.conf.d/00-isabelle-harden.conf"
 
 # Waiting for the dpkg lock rather than failing on it, but not for long: this
 # runs on every service start, and a start that waits ten minutes behind an
@@ -315,10 +317,48 @@ WantedBy=docker.service"
 	say "docker: published ports kept off the network"
 }
 
+# ---------------------------------------------------------------------------
+# The journal
+# ---------------------------------------------------------------------------
+#
+# The journal holds what the services log, and that is personal data: the
+# addresses people sign in with, the mail sent to them. Left to itself,
+# journald keeps it until the disk share it is allowed fills, which on a quiet
+# machine is months. Fourteen days is what nginx keeps its own logs for, and
+# what a privacy policy can say.
+#
+# MaxRetentionSec is applied when journald rotates a file, and it only drops
+# whole files, so a file is closed every day: without that, an entry can
+# outlive its fourteen days by as long as its file stays open, a month by
+# default. The size share stays journald's own.
+function harden_journal() {
+	if [ ! -d /run/systemd/system ] || ! command -v journalctl > /dev/null 2>&1 ; then
+		say "journal: no systemd journal, skipped"
+		return 0
+	fi
+
+	put_file "${JOURNALD_DROPIN}" 644 '# Written by isabelle-scripts/harden.sh; rewritten on every run.
+[Journal]
+MaxRetentionSec=14day
+MaxFileSec=1day'
+	case "$?" in
+		0)
+			systemctl restart systemd-journald > /dev/null 2>&1 ||
+				{ warn journal "cannot restart journald; the limit applies from its next start" ; return ; }
+			# The entries already past the limit go now, not at the next
+			# rotation.
+			journalctl --vacuum-time=14d > /dev/null 2>&1 || true
+			;;
+		2) warn journal "cannot write ${JOURNALD_DROPIN}" ; return ;;
+	esac
+	say "journal: kept for 14 days"
+}
+
 harden_updates
 harden_sshd
 harden_fail2ban
 harden_docker
+harden_journal
 
 mkdir -p "${STATE_DIR}"
 {

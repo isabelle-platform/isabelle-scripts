@@ -77,7 +77,10 @@ place what every machine on the internet needs:
 * fail2ban on sshd, plus `recidive` for addresses that keep coming back;
 * the ports Docker publishes kept off the network. Docker's rules come
   before ufw's, so without this a published container port is open to the
-  world whatever ufw says.
+  world whatever ufw says;
+* the systemd journal kept for 14 days, as nginx keeps its logs: what the
+  services log includes personal data, and journald alone keeps it for as
+  long as its disk share lasts.
 
 It never opens or closes a ufw port. Running it again changes nothing unless a
 release changed it, which is how a change reaches the hosts already running.
