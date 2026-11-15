@@ -13,6 +13,11 @@ function stage_install_deps() {
     echo "Installing dependencies"
     which apt-get && apt-get update
     which apt-get && apt-get install -y build-essential cargo curl docker.io docker-buildx git gnupg jq letsencrypt libssl-dev nginx pkg-config python3-certbot-nginx python3-pip sshpass
+    # On its own: older releases of the distribution do not have it, and a
+    # missing package must not fail the whole list. stage_set_up_nginx copes
+    # without it.
+    which apt-get && apt-get install -y libnginx-mod-http-brotli-static || \
+        echo "brotli module for nginx not available: serving gzip only"
     if [ "$machine_type" == "droplet" ] ; then
         which apt-get && apt-get remove -y unattended-upgrades
         which apt-get && apt-get upgrade -y
@@ -94,6 +99,10 @@ function stage_set_up_nginx() {
 		nginx_conf="$(echo "${nginx_conf}" | \
 			sed '/^\s*index index\.html;/d' | \
 			sed 's|try_files \$uri \$uri/ /index\.html;|try_files \$uri \$uri/ =404;|')"
+	fi
+
+	if ! ls /etc/nginx/modules-enabled/*brotli-static* > /dev/null 2>&1 ; then
+		nginx_conf="$(echo "${nginx_conf}" | sed '/^\s*brotli_static on;/d')"
 	fi
 
 	echo "${nginx_conf}" > /etc/nginx/sites-available/isabelle-${flavour}.conf
