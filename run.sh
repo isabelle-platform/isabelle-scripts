@@ -58,22 +58,24 @@ if [ -z "${PROTOSTAR_BIN}" ] && [ -x "${DISTR_DIR}/distr/core/protostar" ] ; the
 	export PROTOSTAR_BIN="$(cd "${DISTR_DIR}/distr/core" && pwd -P)/protostar"
 fi
 
+# Runtime secrets of the core and its plugins (payment keys, release
+# credentials, the provisioner token), given once with
+# `configure.sh --coreenv-file`. The file lives outside the tarball, so an
+# update never touches it. Read it here, and only here: the core's environment
+# has one source.
+if [ -f "${DISTR_DIR}/.coreenv" ] ; then
+	set -a
+	. "${DISTR_DIR}/.coreenv"
+	set +a
+fi
+
 # protostar config + live fleet state ship under distr/core/protostar-cfgs.
 # protostar.yaml is versioned (refreshed on update); state.json is created
 # there at runtime and persists across updates (it's never in the tarball).
-# Absolute paths so they resolve from the core's cwd. The DIGITALOCEAN_TOKEN
-# (and SSH provisioning keys) are NOT shipped — provide them via the env.
+# Absolute paths so they resolve from the core's cwd. That directory holds the
+# orchestrator's settings only: no secret of the core is read from it.
 if [ -d "${DISTR_DIR}/distr/core/protostar-cfgs" ] ; then
 	cfgs_dir="$(cd "${DISTR_DIR}/distr/core/protostar-cfgs" && pwd -P)"
-	# Runtime secrets (DIGITALOCEAN_TOKEN, STRIPE_*, MIDAIR_IPA_*) provisioned
-	# via `configure.sh --coreenv-file` and installed here by deploy.sh. Export
-	# them so the core and the protostar CLI it spawns pick them up. Mirrors the
-	# local-dev flow that sources protostar-cfgs/.env.
-	if [ -f "${cfgs_dir}/.env" ] ; then
-		set -a
-		. "${cfgs_dir}/.env"
-		set +a
-	fi
 	if [ -z "${PROTOSTAR_CONFIG}" ] && [ -f "${cfgs_dir}/protostar.yaml" ] ; then
 		export PROTOSTAR_CONFIG="${cfgs_dir}/protostar.yaml"
 	fi

@@ -107,12 +107,10 @@ while test -n "$1" ; do
             shift 1
             ;;
         --coreenv-file)
-            # Runtime secrets for the core + the protostar CLI it spawns
-            # (DIGITALOCEAN_TOKEN, STRIPE_*, MIDAIR_IPA_*). The operator points
-            # this at a filled-in env file (same format as protostar-cfgs/.env);
-            # we stash it outside the tarball so it survives in-place updates.
-            # deploy.sh installs it next to the protostar config and run.sh
-            # sources it.
+            # Runtime secrets of the core and its plugins (payment keys,
+            # release credentials, the provisioner token), as NAME='value'
+            # lines. We stash the file outside the tarball so it survives
+            # in-place updates; run.sh reads it from there at every start.
             cp "$2" "${DISTR_DIR}/.coreenv" || fail "Cannot read env file: $2"
             chmod 600 "${DISTR_DIR}/.coreenv"
             shift 1
