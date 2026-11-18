@@ -14,6 +14,9 @@ no_verify=""
 # Update at the first moment the platform is doing nothing, instead of now.
 # See maintenance.sh.
 when_idle=""
+# Leave the platform closed when the update is done: the caller has more to
+# do before it may take work again, and reopens it with `maintenance.sh end`.
+hold=""
 # An already-downloaded release to install instead of fetching one.
 #
 # The platform fetches releases on its own machine and copies the bytes over,
@@ -46,6 +49,9 @@ while test -n "$1" ; do
             ;;
         --when-idle)
             when_idle="y"
+            ;;
+        --hold)
+            hold="y"
             ;;
         --archive)
             archive="$2"
@@ -263,6 +269,6 @@ ${TOP_DIR}/service.sh start || fail "Failed to start service"
 # Reopen a platform that was closed for this update — by --when-idle above,
 # by a deploy that closed it before this ran, or by the platform itself when
 # it asked for the update. One that was never closed is left as it is.
-if [ -x "${TOP_DIR}/maintenance.sh" ] ; then
+if [ "${hold}" != "y" ] && [ -x "${TOP_DIR}/maintenance.sh" ] ; then
     "${TOP_DIR}/maintenance.sh" end
 fi
