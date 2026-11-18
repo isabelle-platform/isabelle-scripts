@@ -3,10 +3,10 @@
 #
 # Close the platform to new operations before an update, and reopen it after.
 #
-# An update stops the service in the middle of whatever it is doing. On a
-# platform that keeps a register of its operations (the Portal), this asks it
-# to close at the first moment none is running, and waits for it to say it
-# has:
+# An update stops the service in the middle of whatever it is doing. The core
+# counts the operations its plugins declare; this asks it to close at the
+# first moment none is running, and waits for it to say it has. A flavour
+# whose plugins declare none is closed at once: there the wait holds nothing.
 #
 #   maintenance.sh begin [--minutes N] [--wait-hours N]
 #       0  closed: nothing is running and nothing new is taken. Go on.
