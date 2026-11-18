@@ -11,6 +11,9 @@ user=""
 password=""
 coreenv=""
 no_verify=""
+# Update at the first moment the platform is doing nothing, instead of now.
+# See maintenance.sh.
+when_idle=""
 # An already-downloaded release to install instead of fetching one.
 #
 # The platform fetches releases on its own machine and copies the bytes over,
@@ -40,6 +43,9 @@ while test -n "$1" ; do
             ;;
         --no-verify)
             no_verify="y"
+            ;;
+        --when-idle)
+            when_idle="y"
             ;;
         --archive)
             archive="$2"
@@ -198,11 +204,33 @@ fi
 # signature has to be good before we reach it.
 verify_release release.tar.xz release.tar.xz.asc
 
+# Unpacked beside the installation first. Decompressing is the slow part,
+# and done here it is not part of the time the service is down; and an
+# archive that does not unpack is found out while the old release is still
+# running, not after it was stopped.
+rm -rf release.new
+mkdir release.new || fail "Failed to make room for the new release"
+tar xf release.tar.xz -C release.new \
+    || { rm -rf release.new ; fail "The release did not unpack; nothing was changed" ; }
+
+# Wait for a moment when nothing is running, and have nothing new started.
+# After the download and the unpacking, so the platform is closed only for
+# the swap itself. Exit 3: it stayed open, and nothing was changed.
+if [ "${when_idle}" == "y" ] ; then
+    "${TOP_DIR}/maintenance.sh" begin
+    rc=$?
+    if [ ${rc} -ne 0 ] ; then
+        rm -rf release.new release.tar.xz release.tar.xz.asc
+        exit ${rc}
+    fi
+fi
+
 rm distr/core/isabelle-gc/.installed > /dev/null 2> /dev/null
 
 ${TOP_DIR}/service.sh stop || fail "Failed to stop service"
 rm -rf distr/ui
-tar xvf release.tar.xz
+cp -a release.new/. . || fail "Failed to put the new release in place"
+rm -rf release.new
 rm -f release.tar.xz release.tar.xz.asc
 
 # Written last: a half-finished install must not claim to be the new version.
@@ -231,3 +259,10 @@ fi
 install_platform
 
 ${TOP_DIR}/service.sh start || fail "Failed to start service"
+
+# Reopen a platform that was closed for this update — by --when-idle above,
+# by a deploy that closed it before this ran, or by the platform itself when
+# it asked for the update. One that was never closed is left as it is.
+if [ -x "${TOP_DIR}/maintenance.sh" ] ; then
+    "${TOP_DIR}/maintenance.sh" end
+fi
